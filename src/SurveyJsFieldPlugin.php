@@ -1,15 +1,15 @@
 <?php
 
-namespace VendorName\Skeleton;
+namespace JibayMcs\SurveyJsField;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 
-class SkeletonPlugin implements Plugin
+class SurveyJsFieldPlugin implements Plugin
 {
     public function getId(): string
     {
-        return 'skeleton';
+        return 'survey-js-field';
     }
 
     public function register(Panel $panel): void

@@ -43,8 +43,21 @@ const defaultOptions = {
     }],
 }
 
-compile({
-    ...defaultOptions,
-    entryPoints: ['./resources/js/index.js'],
-    outfile: './resources/dist/skeleton.js',
-})
+
+async function build() {
+    // Compile first entry point
+    await compile({
+        ...defaultOptions,
+        entryPoints: ['./resources/js/index-form.js'],
+        outfile: './resources/dist/survey-js-form.js'
+    });
+
+    // Compile second entry point
+    await compile({
+        ...defaultOptions,
+        entryPoints: ['./resources/js/index-creator.js'],
+        outfile: './resources/dist/survey-js-creator.js'
+    });
+}
+
+build();
