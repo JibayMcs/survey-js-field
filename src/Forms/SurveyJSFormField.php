@@ -9,8 +9,7 @@ class SurveyJSFormField extends Field
 {
     protected string $view = 'survey-js-field::forms.surveyjs-form-field';
 
-    protected bool | Closure $isLabelHidden = true;
-
+    protected bool|Closure $isLabelHidden = true;
 
     protected function setUp(): void
     {

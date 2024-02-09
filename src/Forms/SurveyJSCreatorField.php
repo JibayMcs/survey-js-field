@@ -25,38 +25,39 @@ class SurveyJSCreatorField extends Field
             'surveyjs::uploadFiles' => [
                 function ($component, $files) {
                     $component->uploadFiles($files);
-                }
+                },
             ],
         ]);
     }
 
     public function licenseKey(?string $licenseKey = null): static
     {
-        if ($licenseKey !== null)
+        if ($licenseKey !== null) {
             $this->licenseKey = $licenseKey;
-        else {
+        } else {
             $this->licenseKey = config('survey-js-field.license_key');
         }
+
         return $this;
     }
 
     public function defaultSurvey(string $json): static
     {
-        if (!str_ends_with(request()->getPathInfo(), 'edit'))
-            $this->formatStateUsing(fn() => json_decode($json, true));
+        if (! str_ends_with(request()->getPathInfo(), 'edit')) {
+            $this->formatStateUsing(fn () => json_decode($json, true));
+        }
 
         return $this;
     }
 
-
     public function uploadFiles(?array $files)
     {
-        if(!Storage::disk('public')->exists('surveys'))
+        if (! Storage::disk('public')->exists('surveys')) {
             Storage::disk('public')->makeDirectory('surveys');
+        }
 
-        if(Storage::move("livewire-tmp/{$files['files'][0]}", 'public/surveys/' . $files['files'][0])) {
-            return response()->json(['url' => asset('storage/surveys/' . $files['files'][0])]);
+        if (Storage::move("livewire-tmp/{$files['files'][0]}", 'public/surveys/'.$files['files'][0])) {
+            return response()->json(['url' => asset('storage/surveys/'.$files['files'][0])]);
         }
     }
-
 }

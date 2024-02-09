@@ -2,22 +2,15 @@
 
 namespace JibayMcs\SurveyJsField;
 
-use Filament\Support\Assets\AlpineComponent;
-use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
-use Filament\Support\Facades\FilamentIcon;
-use Illuminate\Filesystem\Filesystem;
 use JibayMcs\SurveyJsField\Forms\SurveyJSCreatorField;
 use JibayMcs\SurveyJsField\Forms\SurveyJSFormField;
-use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use JibayMcs\SurveyJsField\Commands\SurveyJsFieldCommand;
-use JibayMcs\SurveyJsField\Testing\TestsSurveyJsField;
 
 class SurveyJsFieldServiceProvider extends PackageServiceProvider
 {
@@ -59,12 +52,12 @@ class SurveyJsFieldServiceProvider extends PackageServiceProvider
     public function packageRegistered(): void
     {
         FilamentAsset::register(
-            assets:[
-                Css::make('survey-js-field-styles', __DIR__ . '/../resources/dist/survey-js-field.css'),
-                Css::make('survey-js-creator-styles', __DIR__ . '/../resources/dist/survey-js-field.css')->loadedOnRequest(),
+            assets: [
+                Css::make('survey-js-field-styles', __DIR__.'/../resources/dist/survey-js-field.css'),
+                Css::make('survey-js-creator-styles', __DIR__.'/../resources/dist/survey-js-field.css')->loadedOnRequest(),
 
-                Js::make('surveyjs-form-scripts', __DIR__ . '/../resources/dist/survey-js-form.js'),
-                Js::make('surveyjs-creator-scripts', __DIR__ . '/../resources/dist/survey-js-creator.js'),
+                Js::make('surveyjs-form-scripts', __DIR__.'/../resources/dist/survey-js-form.js'),
+                Js::make('surveyjs-creator-scripts', __DIR__.'/../resources/dist/survey-js-creator.js'),
             ],
             package: 'jibaymcs/survey-js-field'
         );
@@ -77,7 +70,7 @@ class SurveyJsFieldServiceProvider extends PackageServiceProvider
 
         FilamentAsset::registerScriptData(
             data: [
-                'surveyjs_form_theme' => config('survey-js-field.theme')
+                'surveyjs_form_theme' => config('survey-js-field.theme'),
             ],
             package: 'jibaymcs/survey-js-field'
         );
