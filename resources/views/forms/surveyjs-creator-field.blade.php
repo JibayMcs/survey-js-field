@@ -3,7 +3,7 @@
     :field="$field"
 >
     <div
-        wire:ignore
+        wire:ignore.self
         x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('survey-js-creator-styles', 'jibaymcs/survey-js-field'))]"
         x-load-js="[@js(\Filament\Support\Facades\FilamentAsset::getScriptSrc('surveyjs-creator-scripts', 'jibaymcs/survey-js-field'))]"
         x-init="initCreator()"
@@ -26,6 +26,15 @@
                 }
 
                 const creator = new SurveyCreator(creatorOptions);
+
+                this.$watch('state', (value) => {
+                    // check if the value is a string
+                    if (typeof value === 'string') {
+                        // parse the string to a JSON object
+                        creator.JSON = JSON.parse(value)
+                    }
+
+                });
 
                 if (this.state) {
                     creator.JSON = this.state
@@ -62,7 +71,7 @@
                         }, () => {
                             // Cancelled callback...
                         });
-                });
+                }.bind(this));
 
             },
         }"
