@@ -4,23 +4,23 @@
     x-init="initForm()"
     x-data="{
         surveyInstance: null,
-        surveyData: $wire.entangle('survey_data'),
+        state: $wire.$entangle('{{ $getStatePath() }}'),
         isLastPage: false,
 
         initForm() {
             let surveyJson = {}
 
-            if(this.surveyData) {
-                surveyJson = this.surveyData
+            if(this.state) {
+                surveyJson = Alpine.raw(this.state)
             }
 
-            const survey = new Model(surveyJson)
+            const survey = new window.Model(surveyJson)
             this.surveyInstance = survey;
 
             survey.applyTheme(filamentData.surveyjs_form_theme)
             survey.showNavigationButtons = false
 
-            knockout.applyBindings({
+            window.knockout.applyBindings({
                 model: survey
             });
 
@@ -52,7 +52,7 @@
         },
     }"
 >
-    <survey params="survey: model" wire:ignore.self></survey>
+    <survey params="survey: model" wire:ignore></survey>
 
     <div class="flex justify-between">
 
