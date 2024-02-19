@@ -11,7 +11,8 @@
             let surveyJson = {}
 
             if(this.state) {
-                surveyJson = Alpine.raw(this.state)
+                surveyJson = Alpine.raw(this.state);
+                this.state = [];
             }
 
             const survey = new window.Model(surveyJson)
@@ -31,6 +32,61 @@
                     this.isLastPage = false;
                 }
             }.bind(this));
+
+            survey.onValueChanged.add(function(sender, options) {
+                // Récupère la question qui a changé
+                const question = options.question;
+
+                let checkedValues = sender.data[question.name]; // Valeurs cochées
+
+                if (!Array.isArray(checkedValues)) {
+                    checkedValues = checkedValues ? [checkedValues] : [];
+                }
+
+                // Initialisation de l'objet de réponse
+                let response = {
+                    type: question.getType(),
+                    name: question.name,
+                    title: question.title,
+                    value: checkedValues // Valeurs sélectionnées pour tous les types de questions
+                };
+
+                if (question.description) {
+                    console.log(question.description)
+                    response.description = question.description;
+                }
+
+                if (question.getType() === 'checkbox') {
+                    // Pour les questions de type checkbox, déterminer les valeurs non sélectionnées
+                    const uncheckedValues = question.choices
+                    .filter(choice => !checkedValues.includes(choice.value))
+                    .map(choice => choice.value);
+
+                    // Ajouter les valeurs non cochées à l'objet de réponse
+                    response.unchecked = uncheckedValues;
+                }
+
+                if (question.getType() === 'boolean') {
+                    response.trueLabel = question.trueLabel || 'Yes'; // Utilisez des valeurs par défaut ou celles fournies par SurveyJS
+                    response.falseLabel = question.falseLabel || 'No';
+                }
+
+                // Trouve l'index de l'objet de réponse existant dans this.state (s'il existe)
+                const existingIndex = this.state.findIndex(item => item.name === question.name);
+
+                // Remplace l'objet existant par le nouvel objet ou l'ajoute s'il n'existe pas
+                if (existingIndex !== -1) {
+                    this.state[existingIndex] = response;
+                } else {
+                    this.state.push(response);
+                }
+
+                // Logique supplémentaire si nécessaire, par exemple, mettre à jour le composant Livewire
+                // window.Livewire.emit('updateState', this.state);
+
+                console.log(this.state);
+            }.bind(this));
+
 
             $wire.$on('surveyjs::form::previous', () => {
                 console.log('previous')
