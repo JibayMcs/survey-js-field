@@ -17,7 +17,7 @@ class SurveyJSCreatorField extends Field
 
     protected bool|Closure $isLabelHidden = true;
 
-    protected $availableQuestionTypes = [];
+    public ?array $availableQuestionTypes = [];
 
     protected function setUp(): void
     {
