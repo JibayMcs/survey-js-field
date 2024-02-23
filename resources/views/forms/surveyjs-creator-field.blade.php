@@ -10,6 +10,7 @@
         x-data="{
             state: $wire.$entangle('{{ $getStatePath() }}'),
             licenseKey: '{{$field->licenseKey}}',
+            availableQuestionTypes: @js($field->availableQuestionTypes),
 
             initCreator() {
                 const creatorOptions = {
@@ -17,6 +18,7 @@
                     showSurveyTitle: true,
                     showDefaultLanguageInPreviewTab: false,
                     defaultLanguage: 'fr',
+                    questionTypes: this.availableQuestionTypes,
                 };
 
                 editorLocalization.currentLocale = 'fr';

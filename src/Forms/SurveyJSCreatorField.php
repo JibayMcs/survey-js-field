@@ -17,6 +17,8 @@ class SurveyJSCreatorField extends Field
 
     protected bool|Closure $isLabelHidden = true;
 
+    protected $availableQuestionTypes = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -59,5 +61,12 @@ class SurveyJSCreatorField extends Field
         if (Storage::move("livewire-tmp/{$files['files'][0]}", 'public/surveys/'.$files['files'][0])) {
             return response()->json(['url' => asset('storage/surveys/'.$files['files'][0])]);
         }
+    }
+
+    public function availableQuestionTypes(array $questionTypes): static
+    {
+        $this->availableQuestionTypes = $questionTypes;
+
+        return $this;
     }
 }
