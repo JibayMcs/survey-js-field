@@ -5,6 +5,7 @@ namespace JibayMcs\SurveyJsField\Forms;
 use Closure;
 use Filament\Forms\Components\Field;
 use Illuminate\Support\Facades\Storage;
+use JibayMcs\SurveyJsField\Creator\PageEditMode;
 use Livewire\WithFileUploads;
 
 class SurveyJSCreatorField extends Field
@@ -19,9 +20,13 @@ class SurveyJSCreatorField extends Field
 
     public ?array $availableQuestionTypes = [];
 
+    public string $pageEditMode;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->pageEditMode = PageEditMode::STANDARD->name;
 
         $this->registerListeners([
             'surveyjs::uploadFiles' => [
@@ -66,6 +71,22 @@ class SurveyJSCreatorField extends Field
     public function availableQuestionTypes(array $questionTypes): static
     {
         $this->availableQuestionTypes = $questionTypes;
+
+        return $this;
+    }
+
+    public function pageEditMode(PageEditMode $editMode): static
+    {
+
+        //get allowed values from enum
+        $allowedValues = PageEditMode::getValues();
+
+        //check if the value is allowed
+        if (!in_array($editMode, $allowedValues)) {
+            throw new \Exception('Invalid value for PageEditMode, allowed values are: ' . implode(', ', $allowedValues) . '.');
+        }
+
+        $this->pageEditMode = strtolower($editMode->name);
 
         return $this;
     }

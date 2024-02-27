@@ -19,6 +19,7 @@
                     showDefaultLanguageInPreviewTab: false,
                     defaultLanguage: 'fr',
                     questionTypes: this.availableQuestionTypes,
+                    pageEditMode: '{{ $field->pageEditMode }}',
                 };
 
                 editorLocalization.currentLocale = 'fr';
