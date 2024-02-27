@@ -112,28 +112,33 @@
 
     <div class="flex justify-between">
 
-        <x-filament::button
-            outlined
-            x-on:click="previous"
-        >
-            Précédent
-        </x-filament::button>
+        @if($field->showPreviousButton && $field->showButtons)
+            <x-filament::button
+                outlined
+                x-on:click="previous"
+            >
+                Précédent
+            </x-filament::button>
+        @endif
 
-        <x-filament::button
-            x-show="!isLastPage"
-            x-on:click="next"
-        >
-            Suivant
-        </x-filament::button>
+        @if($field->showNextButton && $field->showButtons)
+            <x-filament::button
+                x-show="!isLastPage"
+                x-on:click="next"
+            >
+                Suivant
+            </x-filament::button>
+        @endif
 
-        <x-filament::button
-            x-show="isLastPage"
-            x-on:click="terminate"
-            color="success"
-        >
-            Terminer l'évaluation
-        </x-filament::button>
-
+        @if($field->showCompleteButton && $field->showButtons)
+            <x-filament::button
+                x-show="isLastPage"
+                x-on:click="terminate"
+                color="success"
+            >
+                Terminer l'évaluation
+            </x-filament::button>
+        @endif
     </div>
 
 </div>
