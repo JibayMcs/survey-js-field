@@ -82,8 +82,8 @@ class SurveyJSCreatorField extends Field
         $allowedValues = PageEditMode::getValues();
 
         //check if the value is allowed
-        if (!in_array($editMode, $allowedValues)) {
-            throw new \Exception('Invalid value for PageEditMode, allowed values are: ' . implode(', ', $allowedValues) . '.');
+        if (! in_array($editMode, $allowedValues)) {
+            throw new \Exception('Invalid value for PageEditMode, allowed values are: '.implode(', ', $allowedValues).'.');
         }
 
         $this->pageEditMode = strtolower($editMode->name);

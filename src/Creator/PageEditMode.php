@@ -5,8 +5,8 @@ namespace JibayMcs\SurveyJsField\Creator;
 enum PageEditMode
 {
     case STANDARD;
-    CASE BYPAGE;
-    CASE SINGLE;
+    case BYPAGE;
+    case SINGLE;
 
     public static function getValues()
     {
@@ -16,6 +16,4 @@ enum PageEditMode
             self::SINGLE,
         ];
     }
-
-
 }
