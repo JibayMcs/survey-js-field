@@ -11,6 +11,7 @@
             state: $wire.$entangle('{{ $getStatePath() }}'),
             licenseKey: '{{$field->licenseKey}}',
             availableQuestionTypes: @js($field->availableQuestionTypes),
+            pageEditMode: '{{ $field->pageEditMode }}',
 
             initCreator() {
                 const creatorOptions = {
@@ -19,7 +20,7 @@
                     showDefaultLanguageInPreviewTab: false,
                     defaultLanguage: 'fr',
                     questionTypes: this.availableQuestionTypes,
-                    pageEditMode: '{{ $field->pageEditMode }}',
+                    pageEditMode: this.pageEditMode,
                 };
 
                 editorLocalization.currentLocale = 'fr';

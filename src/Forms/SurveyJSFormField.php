@@ -19,6 +19,10 @@ class SurveyJSFormField extends Field
 
     public bool $showCompleteButton = true;
 
+    public bool $readOnly = false;
+
+    public bool $disableActions = false;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -48,6 +52,20 @@ class SurveyJSFormField extends Field
     public function hideCompleteButton(): static
     {
         $this->showCompleteButton = false;
+
+        return $this;
+    }
+
+    public function readOnly(bool $condition = true): static
+    {
+        $this->readOnly = $condition;
+
+        return $this;
+    }
+
+    public function disableActions(bool $condition = true): static
+    {
+        $this->disableActions = $condition;
 
         return $this;
     }

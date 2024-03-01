@@ -6,6 +6,8 @@
         surveyInstance: null,
         state: $wire.$entangle('{{ $getStatePath() }}'),
         isLastPage: false,
+        readOnly: {{ $field->readOnly ? 'true' : 'false' }},
+        disableActions: {{ $field->disableActions ? 'true' : 'false' }},
 
         initForm() {
             let surveyJson = {}
@@ -20,6 +22,10 @@
 
             survey.applyTheme(filamentData.surveyjs_form_theme)
             survey.showNavigationButtons = false
+
+            survey.getAllQuestions().forEach(function(question) {
+                question.readOnly = this.readOnly
+            }.bind(this));
 
             window.knockout.applyBindings({
                 model: survey
@@ -37,7 +43,7 @@
                 // Récupère la question qui a changé
                 const question = options.question;
 
-                let checkedValues = sender.data[question.name]; // Valeurs cochées
+                let checkedValues = question.getType() === 'checkbox' ? question.getPlainData().data.map((item) => item.displayValue) : sender.data[question.name]; // Valeurs cochées
 
                 if (!Array.isArray(checkedValues)) {
                     checkedValues = checkedValues ? [checkedValues] : [];
@@ -57,10 +63,11 @@
                 }
 
                 if (question.getType() === 'checkbox') {
+
                     // Pour les questions de type checkbox, déterminer les valeurs non sélectionnées
                     const uncheckedValues = question.choices
-                    .filter(choice => !checkedValues.includes(choice.value))
-                    .map(choice => choice.value);
+                    .filter(choice => !checkedValues.includes(choice.text))
+                    .map(choice => choice.text);
 
                     // Ajouter les valeurs non cochées à l'objet de réponse
                     response.unchecked = uncheckedValues;
@@ -83,8 +90,6 @@
 
                 // Logique supplémentaire si nécessaire, par exemple, mettre à jour le composant Livewire
                 // window.Livewire.emit('updateState', this.state);
-
-                console.log(this.state);
             }.bind(this));
 
 
@@ -133,7 +138,7 @@
         @if($field->showCompleteButton && $field->showButtons)
             <x-filament::button
                 x-show="isLastPage"
-                x-on:click="terminate"
+                x-on:click="disabledActions ? null : $wire.completeSurvey"
                 color="success"
             >
                 Terminer l'évaluation
