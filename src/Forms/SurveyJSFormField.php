@@ -28,6 +28,8 @@ class SurveyJSFormField extends Field
         parent::setUp();
     }
 
+
+
     public function hideNavigationButtons(): static
     {
         $this->showButtons = false;

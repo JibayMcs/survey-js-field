@@ -4,34 +4,36 @@
     x-init="initForm()"
     x-data="{
         surveyInstance: null,
-        state: $wire.$entangle('{{ $getStatePath() }}'),
+        state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$getStatePath()}')") }},
         isLastPage: false,
         readOnly: {{ $field->readOnly ? 'true' : 'false' }},
         disableActions: {{ $field->disableActions ? 'true' : 'false' }},
 
         initForm() {
-            let surveyJson = {}
+            let surveyJson = Alpine.raw(this.state);
 
             if(this.state) {
                 surveyJson = Alpine.raw(this.state);
                 this.state = [];
             }
 
-            const survey = new window.Model(surveyJson)
-            this.surveyInstance = survey;
+            this.surveyInstance = new window.Model(surveyJson)
 
-            survey.applyTheme(filamentData.surveyjs_form_theme)
-            survey.showNavigationButtons = false
+            this.surveyInstance.applyTheme(filamentData.surveyjs_form_theme)
+            this.surveyInstance.showNavigationButtons = false
 
-            survey.getAllQuestions().forEach(function(question) {
+            this.surveyInstance.getAllQuestions().forEach(function(question) {
                 question.readOnly = this.readOnly
+                if(this.disableActions) {
+                    question.isRequired = false;
+                }
             }.bind(this));
 
             window.knockout.applyBindings({
-                model: survey
+                model: this.surveyInstance
             });
 
-            survey.onCurrentPageChanged.add(function(sender, options) {
+            this.surveyInstance.onCurrentPageChanged.add(function(sender, options) {
                 if (sender.isLastPage) {
                     this.isLastPage = true;
                 } else {
@@ -39,7 +41,7 @@
                 }
             }.bind(this));
 
-            survey.onValueChanged.add(function(sender, options) {
+            this.surveyInstance.onValueChanged.add(function(sender, options) {
                 // Récupère la question qui a changé
                 const question = options.question;
 
@@ -95,12 +97,12 @@
 
             $wire.$on('surveyjs::form::previous', () => {
                 console.log('previous')
-                survey.prevPage();
+                this.surveyInstance.prevPage();
             })
 
             $wire.$on('surveyjs::form::next', () => {
                 console.log('next')
-                survey.nextPage();
+                this.surveyInstance.nextPage();
             })
         },
 
