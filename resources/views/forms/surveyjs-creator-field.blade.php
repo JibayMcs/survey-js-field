@@ -3,7 +3,7 @@
     :field="$field"
 >
     <div
-        wire:ignore.self
+        wire:ignore
         x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('survey-js-creator-styles', 'jibaymcs/survey-js-field'))]"
         x-load-js="[@js(\Filament\Support\Facades\FilamentAsset::getScriptSrc('surveyjs-creator-scripts', 'jibaymcs/survey-js-field'))]"
         x-init="initCreator()"
@@ -12,22 +12,29 @@
             licenseKey: '{{$field->licenseKey}}',
             availableQuestionTypes: @js($field->availableQuestionTypes),
             pageEditMode: '{{ $field->pageEditMode }}',
+            showSurveyTitle: '{{ $field->showSurveyTitle }}',
+            formLocale: '{{ $field->formLocale }}',
+            creatorLocale: '{{ $field->creatorLocale }}',
+            showJSONEditorTab: {{ $field->showJSONEditorTab ? 'true' : 'false' }},
 
             initCreator() {
                 const creatorOptions = {
-                    showJSONEditorTab: false,
-                    showSurveyTitle: true,
+                    showJSONEditorTab: this.showJSONEditorTab,
+                    showSurveyTitle: this.showSurveyTitle,
                     showDefaultLanguageInPreviewTab: false,
-                    defaultLanguage: 'fr',
+                    showTranslationTab: false,
+                    defaultLanguage: this.formLocale,
                     questionTypes: this.availableQuestionTypes,
                     pageEditMode: this.pageEditMode,
                 };
 
-                editorLocalization.currentLocale = 'fr';
+                editorLocalization.currentLocale = this.creatorLocale;
 
                 if (this.licenseKey) {
                     setLicenseKey(this.licenseKey)
                 }
+
+                Serializer.findProperty('survey', 'locale').visible = false;
 
                 const creator = new SurveyCreator(creatorOptions);
 

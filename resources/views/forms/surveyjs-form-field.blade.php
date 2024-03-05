@@ -8,6 +8,12 @@
         isLastPage: false,
         readOnly: {{ $field->readOnly ? 'true' : 'false' }},
         disableActions: {{ $field->disableActions ? 'true' : 'false' }},
+        hideQuestionNumbers: {{ $field->hideQuestionNumbers ? 'true' : 'false' }},
+        panelless: {{ $field->panelless !== null ? $field->panelless ? 'true' : 'false' : 'undefined' }},
+        mutatedFormData: @js($field->mutatedFormData),
+        allFieldsRequired: {{ $field->allFieldsRequired ? 'true' : 'false' }},
+        checkErrorsMode: '{{ $field->checkErrorsMode }}',
+        locale: '{{ $field->locale }}',
 
         initForm() {
             let surveyJson = Alpine.raw(this.state);
@@ -17,38 +23,73 @@
                 this.state = [];
             }
 
-            this.surveyInstance = new window.Model(surveyJson)
+            this.surveyInstance = new window.Model(surveyJson);
 
-            this.surveyInstance.applyTheme(filamentData.surveyjs_form_theme)
-            this.surveyInstance.showNavigationButtons = false
+            this.surveyInstance.locale = this.locale;
+
+            window.surveyLocalization.locales['fr'].requiredError = 'Ce champ est obligatoire';
+            window.surveyLocalization.locales['en'].requiredError = 'This field is required';
+
+            let theme = filamentData.surveyjs_form_theme;
+
+            if(this.panelless) {
+                theme.isPanelless = this.panelless;
+            }
+
+            this.surveyInstance.applyTheme(theme);
+            this.surveyInstance.showNavigationButtons = false;
+            this.surveyInstance.checkErrorsMode = this.checkErrorsMode;
+
+            for (const key in this.mutatedFormData) {
+                if (this.mutatedFormData.hasOwnProperty(key)) {
+                    const value = this.mutatedFormData[key];
+                    this.surveyInstance.setValue(key, value);
+                }
+            }
+
 
             this.surveyInstance.getAllQuestions().forEach(function(question) {
-                question.readOnly = this.readOnly
+                question.readOnly = this.readOnly;
+
+                if(this.allFieldsRequired) {
+                    question.isRequired = true;
+                }
+
                 if(this.disableActions) {
                     question.isRequired = false;
                 }
-            }.bind(this));
+
+                if(this.hideQuestionNumbers) {
+                    question.hideNumber = this.hideQuestionNumbers;
+                }
+
+            }.bind(this))
 
             window.knockout.applyBindings({
-                model: this.surveyInstance
-            });
+                model: this.surveyInstance,
+            })
 
             this.surveyInstance.onCurrentPageChanged.add(function(sender, options) {
                 if (sender.isLastPage) {
-                    this.isLastPage = true;
+                    this.isLastPage = true
                 } else {
-                    this.isLastPage = false;
+                    this.isLastPage = false
                 }
-            }.bind(this));
+            }.bind(this))
 
             this.surveyInstance.onValueChanged.add(function(sender, options) {
-                // Récupère la question qui a changé
-                const question = options.question;
 
-                let checkedValues = question.getType() === 'checkbox' ? question.getPlainData().data.map((item) => item.displayValue) : sender.data[question.name]; // Valeurs cochées
+                if(this.checkErrorsMode === 'onValueChanged') {
+                    sender.validate();
+                }
+
+                // Récupère la question qui a changé
+                const question = options.question
+
+                let checkedValues = question.getType() === 'checkbox' ? question.getPlainData().data.map((item) => item.displayValue) : sender.data[question.name] // Valeurs cochées
 
                 if (!Array.isArray(checkedValues)) {
-                    checkedValues = checkedValues ? [checkedValues] : [];
+                    checkedValues = checkedValues ? [checkedValues] : []
                 }
 
                 // Initialisation de l'objet de réponse
@@ -56,12 +97,12 @@
                     type: question.getType(),
                     name: question.name,
                     title: question.title,
-                    value: checkedValues // Valeurs sélectionnées pour tous les types de questions
-                };
+                    value: checkedValues, // Valeurs sélectionnées pour tous les types de questions
+                }
 
                 if (question.description) {
                     console.log(question.description)
-                    response.description = question.description;
+                    response.description = question.description
                 }
 
                 if (question.getType() === 'checkbox') {
@@ -69,40 +110,40 @@
                     // Pour les questions de type checkbox, déterminer les valeurs non sélectionnées
                     const uncheckedValues = question.choices
                     .filter(choice => !checkedValues.includes(choice.text))
-                    .map(choice => choice.text);
+                    .map(choice => choice.text)
 
                     // Ajouter les valeurs non cochées à l'objet de réponse
-                    response.unchecked = uncheckedValues;
+                    response.unchecked = uncheckedValues
                 }
 
                 if (question.getType() === 'boolean') {
-                    response.trueLabel = question.trueLabel || 'Yes'; // Utilisez des valeurs par défaut ou celles fournies par SurveyJS
-                    response.falseLabel = question.falseLabel || 'No';
+                    response.trueLabel = question.trueLabel || 'Yes' // Utilisez des valeurs par défaut ou celles fournies par SurveyJS
+                    response.falseLabel = question.falseLabel || 'No'
                 }
 
                 // Trouve l'index de l'objet de réponse existant dans this.state (s'il existe)
-                const existingIndex = this.state.findIndex(item => item.name === question.name);
+                const existingIndex = this.state.findIndex(item => item.name === question.name)
 
                 // Remplace l'objet existant par le nouvel objet ou l'ajoute s'il n'existe pas
                 if (existingIndex !== -1) {
-                    this.state[existingIndex] = response;
+                    this.state[existingIndex] = response
                 } else {
-                    this.state.push(response);
+                    this.state.push(response)
                 }
 
                 // Logique supplémentaire si nécessaire, par exemple, mettre à jour le composant Livewire
                 // window.Livewire.emit('updateState', this.state);
-            }.bind(this));
+            }.bind(this))
 
 
             $wire.$on('surveyjs::form::previous', () => {
                 console.log('previous')
-                this.surveyInstance.prevPage();
+                this.surveyInstance.prevPage()
             })
 
             $wire.$on('surveyjs::form::next', () => {
                 console.log('next')
-                this.surveyInstance.nextPage();
+                this.surveyInstance.nextPage()
             })
         },
 
@@ -113,6 +154,20 @@
         previous() {
             Alpine.raw(this.surveyInstance).prevPage()
         },
+
+        onSurveyComplete() {
+
+            let validated = true;
+
+            if(this.checkErrorsMode === 'onComplete') {
+                validated = this.surveyInstance.validate();
+            }
+
+            if(validated) {
+                $wire.dispatchFormEvent('surveyjs::completeSurvey');
+            }
+        },
+
     }"
 >
     <survey params="survey: model" wire:ignore></survey>
@@ -140,7 +195,7 @@
         @if($field->showCompleteButton && $field->showButtons)
             <x-filament::button
                 x-show="isLastPage"
-                x-on:click="disabledActions ? null : $wire.completeSurvey"
+                x-on:click="onSurveyComplete"
                 color="success"
             >
                 Terminer l'évaluation

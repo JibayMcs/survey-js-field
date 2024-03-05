@@ -22,11 +22,21 @@ class SurveyJSCreatorField extends Field
 
     public string $pageEditMode;
 
+    public bool $showSurveyTitle = true;
+
+    public string $formLocale;
+    public string $creatorLocale;
+
+    public ?bool $showJSONEditorTab = false;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->pageEditMode = PageEditMode::STANDARD->name;
+
+        $this->formLocale = app()->getLocale();
+        $this->creatorLocale = app()->getLocale();
 
         $this->registerListeners([
             'surveyjs::uploadFiles' => [
@@ -44,7 +54,6 @@ class SurveyJSCreatorField extends Field
         } else {
             $this->licenseKey = config('survey-js-field.license_key');
         }
-
         return $this;
     }
 
@@ -53,7 +62,6 @@ class SurveyJSCreatorField extends Field
         if (! str_ends_with(request()->getPathInfo(), 'edit')) {
             $this->formatStateUsing(fn () => json_decode($json, true));
         }
-
         return $this;
     }
 
@@ -71,13 +79,11 @@ class SurveyJSCreatorField extends Field
     public function availableQuestionTypes(array $questionTypes): static
     {
         $this->availableQuestionTypes = $questionTypes;
-
         return $this;
     }
 
     public function pageEditMode(PageEditMode $editMode): static
     {
-
         //get allowed values from enum
         $allowedValues = PageEditMode::getValues();
 
@@ -87,7 +93,30 @@ class SurveyJSCreatorField extends Field
         }
 
         $this->pageEditMode = strtolower($editMode->name);
+        return $this;
+    }
 
+    public function showSurveyTitle(bool $condition = true): static
+    {
+        $this->showSurveyTitle = $condition;
+        return $this;
+    }
+
+    public function formLocale(string $locale = null): static
+    {
+        $this->formLocale = $locale ?: app()->getLocale();
+        return $this;
+    }
+
+    public function creatorLocale(string $locale = null): static
+    {
+        $this->creatorLocale = $locale ?: app()->getLocale();
+        return $this;
+    }
+
+    public function showJSONEditorTab(bool $condition = true): static
+    {
+        $this->showJSONEditorTab = $condition;
         return $this;
     }
 }
