@@ -3,15 +3,11 @@
 namespace JibayMcs\SurveyJsField\Forms;
 
 use Closure;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
-use JibayMcs\SurveyJsField\Creator\PageEditMode;
 use JibayMcs\SurveyJsField\Form\CheckErrorsMode;
-use Livewire\Attributes\On;
 
 class SurveyJSFormField extends Field
 {
@@ -55,7 +51,7 @@ class SurveyJSFormField extends Field
 
         $this->locale = app()->getLocale();
 
-        $this->afterStateHydrated(static function (SurveyJSFormField $component, $state): void  {
+        $this->afterStateHydrated(static function (SurveyJSFormField $component, $state): void {
             $component->mutatedFormData = $component->evaluate($component->mutatedFormData, [
                 'record' => $component->getRecord(),
                 'state' => $state,
@@ -71,7 +67,7 @@ class SurveyJSFormField extends Field
                         $component->callOnCompleteSurvey($this->getState(), $component->getRecord());
                         $component->successNotification->send();
                     },
-                ]
+                ],
             ]
         );
     }
@@ -79,53 +75,60 @@ class SurveyJSFormField extends Field
     public function hideNavigationButtons(): static
     {
         $this->showButtons = false;
+
         return $this;
     }
 
     public function hidePreviousButton(): static
     {
         $this->showPreviousButton = false;
+
         return $this;
     }
 
     public function hideNextButton(): static
     {
         $this->showNextButton = false;
+
         return $this;
     }
 
     public function hideCompleteButton(): static
     {
         $this->showCompleteButton = false;
+
         return $this;
     }
 
     public function readOnly(bool $condition = true): static
     {
         $this->readOnly = $condition;
+
         return $this;
     }
 
     public function disableActions(bool $condition = true): static
     {
         $this->disableActions = $condition;
+
         return $this;
     }
 
     public function onCompleteSurvey(Closure $closure): static
     {
         $this->onCompleteSurveyClosure = $closure;
+
         return $this;
     }
 
     public function callOnCompleteSurvey(mixed $state, ?Model $record): void
     {
-        if ($this->onCompleteSurveyClosure && !$this->disableActions) {
+        if ($this->onCompleteSurveyClosure && ! $this->disableActions) {
             $this->evaluate($this->onCompleteSurveyClosure, ['state' => $state, 'record' => $record]);
         }
     }
 
-    public function completeNotification(Notification $notification = null): static
+    public function completeNotification(?Notification $notification = null): static
     {
         if ($notification) {
             $this->successNotification = $notification;
@@ -136,30 +139,35 @@ class SurveyJSFormField extends Field
                 ->body(__('survey-js-field::survey-js-field.notifications.success_completed_survey.body'))
                 ->icon('heroicon-o-check-circle');
         }
+
         return $this;
     }
 
     public function hideQuestionNumbers(bool $condition = true): static
     {
         $this->hideQuestionNumbers = $condition;
+
         return $this;
     }
 
     public function panelless(?bool $condition = null): static
     {
         $this->panelless = $condition;
+
         return $this;
     }
 
     public function mutateDataBeforeFillForm(array|Closure $data): static
     {
         $this->mutatedFormData = $data;
+
         return $this;
     }
 
     public function allFieldsRequired(bool $condition = true): static
     {
         $this->allFieldsRequired = $condition;
+
         return $this;
     }
 
@@ -174,12 +182,14 @@ class SurveyJSFormField extends Field
         }
 
         $this->checkErrorsMode = $mode->value;
+
         return $this;
     }
 
-    public function locale(string $locale = null): static
+    public function locale(?string $locale = null): static
     {
         $this->locale = $locale ?: app()->getLocale();
+
         return $this;
     }
 }

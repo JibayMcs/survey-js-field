@@ -4,7 +4,6 @@ namespace JibayMcs\SurveyJsField\Form;
 
 enum CheckErrorsMode: string
 {
-
     case ON_NEXT_PAGE = 'onNextPage';
 
     case ON_VALUE_CHANGED = 'onValueChanged';

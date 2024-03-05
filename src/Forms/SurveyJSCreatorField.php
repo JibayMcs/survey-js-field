@@ -25,6 +25,7 @@ class SurveyJSCreatorField extends Field
     public bool $showSurveyTitle = true;
 
     public string $formLocale;
+
     public string $creatorLocale;
 
     public ?bool $showJSONEditorTab = false;
@@ -54,6 +55,7 @@ class SurveyJSCreatorField extends Field
         } else {
             $this->licenseKey = config('survey-js-field.license_key');
         }
+
         return $this;
     }
 
@@ -62,6 +64,7 @@ class SurveyJSCreatorField extends Field
         if (! str_ends_with(request()->getPathInfo(), 'edit')) {
             $this->formatStateUsing(fn () => json_decode($json, true));
         }
+
         return $this;
     }
 
@@ -79,6 +82,7 @@ class SurveyJSCreatorField extends Field
     public function availableQuestionTypes(array $questionTypes): static
     {
         $this->availableQuestionTypes = $questionTypes;
+
         return $this;
     }
 
@@ -93,30 +97,35 @@ class SurveyJSCreatorField extends Field
         }
 
         $this->pageEditMode = strtolower($editMode->name);
+
         return $this;
     }
 
     public function showSurveyTitle(bool $condition = true): static
     {
         $this->showSurveyTitle = $condition;
+
         return $this;
     }
 
-    public function formLocale(string $locale = null): static
+    public function formLocale(?string $locale = null): static
     {
         $this->formLocale = $locale ?: app()->getLocale();
+
         return $this;
     }
 
-    public function creatorLocale(string $locale = null): static
+    public function creatorLocale(?string $locale = null): static
     {
         $this->creatorLocale = $locale ?: app()->getLocale();
+
         return $this;
     }
 
     public function showJSONEditorTab(bool $condition = true): static
     {
         $this->showJSONEditorTab = $condition;
+
         return $this;
     }
 }
