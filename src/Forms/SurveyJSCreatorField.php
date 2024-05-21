@@ -134,6 +134,7 @@ class SurveyJSCreatorField extends Field
     public function components(array $components): static
     {
         $this->components = $components;
+
         return $this;
     }
 }
