@@ -3,11 +3,15 @@
 namespace JibayMcs\SurveyJsField\Forms;
 
 use Closure;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use JibayMcs\SurveyJsField\Creator\PageEditMode;
 use JibayMcs\SurveyJsField\Form\CheckErrorsMode;
+use Livewire\Attributes\On;
 
 class SurveyJSFormField extends Field
 {
@@ -43,6 +47,17 @@ class SurveyJSFormField extends Field
 
     public string $locale;
 
+    public ?array $answerData;
+
+    public ?Closure $loadAnswersUsing = null;
+
+    public bool $nativeState = false;
+
+    public ?array $components = [];
+
+    public bool $hideCompleteNotification = false;
+
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -65,70 +80,109 @@ class SurveyJSFormField extends Field
                 'surveyjs::completeSurvey' => [
                     function ($component) {
                         $component->callOnCompleteSurvey($this->getState(), $component->getRecord());
-                        $component->successNotification->send();
+
+                        if (!$this->hideCompleteNotification) {
+                            $component->successNotification->send();
+                        }
                     },
-                ],
+                ]
             ]
         );
     }
 
+    /**
+     * Hide all the navigation buttons
+     * @param bool $condition
+     * @return $this
+     */
     public function hideNavigationButtons(): static
     {
         $this->showButtons = false;
-
         return $this;
     }
 
+    /**
+     * Hide the previous button
+     * @return $this
+     */
     public function hidePreviousButton(): static
     {
         $this->showPreviousButton = false;
-
         return $this;
     }
 
+    /**
+     * Hide the next button
+     * @return $this
+     */
     public function hideNextButton(): static
     {
         $this->showNextButton = false;
-
         return $this;
     }
 
+    /**
+     * Hide the complete button
+     * @return $this
+     */
     public function hideCompleteButton(): static
     {
         $this->showCompleteButton = false;
-
         return $this;
     }
 
+    /**
+     * Set the survey to be read only
+     * @param bool $condition
+     * @return $this
+     */
     public function readOnly(bool $condition = true): static
     {
         $this->readOnly = $condition;
-
         return $this;
     }
 
+    /**
+     * Disable the actions for the survey
+     * 'NEXT', 'PREV' and 'COMPLETE'
+     * @param bool $condition
+     * @return $this
+     */
     public function disableActions(bool $condition = true): static
     {
         $this->disableActions = $condition;
-
         return $this;
     }
 
+    /**
+     * Set the onCompleteSurvey closure when the survey is completed
+     * @param Closure $closure
+     * @return $this
+     */
     public function onCompleteSurvey(Closure $closure): static
     {
         $this->onCompleteSurveyClosure = $closure;
-
         return $this;
     }
 
+    /**
+     * Call the onCompleteSurvey closure when the survey is completed
+     * @param mixed $state
+     * @param Model|null $record
+     */
     public function callOnCompleteSurvey(mixed $state, ?Model $record): void
     {
-        if ($this->onCompleteSurveyClosure && ! $this->disableActions) {
+        if ($this->onCompleteSurveyClosure && !$this->disableActions) {
             $this->evaluate($this->onCompleteSurveyClosure, ['state' => $state, 'record' => $record]);
         }
     }
 
-    public function completeNotification(?Notification $notification = null): static
+    /**
+     * Set the success notification for the survey
+     * @param Notification|null $notification
+     * @return $this
+     */
+    public function completeNotification(Notification $notification = null): static
     {
         if ($notification) {
             $this->successNotification = $notification;
@@ -139,57 +193,126 @@ class SurveyJSFormField extends Field
                 ->body(__('survey-js-field::survey-js-field.notifications.success_completed_survey.body'))
                 ->icon('heroicon-o-check-circle');
         }
-
         return $this;
     }
 
+    /**
+     * Hide the question numbers
+     * @param bool $condition
+     * @return $this
+     */
     public function hideQuestionNumbers(bool $condition = true): static
     {
         $this->hideQuestionNumbers = $condition;
-
         return $this;
     }
 
+    /**
+     * Set the panelless mode for the survey
+     * @param bool|null $condition
+     * @return $this
+     */
     public function panelless(?bool $condition = null): static
     {
         $this->panelless = $condition;
-
         return $this;
     }
 
+    /**
+     * Mutate the data before filling the form
+     * @param bool $condition
+     * @return $this
+     */
     public function mutateDataBeforeFillForm(array|Closure $data): static
     {
         $this->mutatedFormData = $data;
-
         return $this;
     }
 
+    /**
+     * Set the survey to require all fields
+     * @param bool $condition
+     * @return $this
+     */
     public function allFieldsRequired(bool $condition = true): static
     {
         $this->allFieldsRequired = $condition;
-
         return $this;
     }
 
+    /**
+     * Set the check errors mode for the survey
+     * allowed values are: 'ON_NEXT_PAGE', 'ON_VALUE_CHANGED' and 'ON_COMPLETE'
+     * @param CheckErrorsMode $mode
+     * @return $this
+     */
     public function checkErrorsMode(CheckErrorsMode $mode): static
     {
         //get allowed values from enum
         $allowedValues = CheckErrorsMode::getValues();
 
         //check if the value is allowed
-        if (! in_array($mode, $allowedValues)) {
-            throw new \Exception('Invalid value for CheckErrorsMode, allowed values are: '.implode(', ', $allowedValues).'.');
+        if (!in_array($mode, $allowedValues)) {
+            throw new \Exception('Invalid value for CheckErrorsMode, allowed values are: ' . implode(', ', $allowedValues) . '.');
         }
 
         $this->checkErrorsMode = $mode->value;
+        return $this;
+    }
+
+    /**
+     * Set the locale for the survey
+     * @param string|null $locale
+     * @return $this
+     */
+    public function locale(string $locale = null): static
+    {
+        $this->locale = $locale ?: app()->getLocale();
+        return $this;
+    }
+
+    /**
+     * Set the answers for the survey
+     * @param array $answers
+     * @return $this
+     */
+    public function loadAnswersUsing(Closure $closure): static
+    {
+        $this->loadAnswersUsing = $closure;
 
         return $this;
     }
 
-    public function locale(?string $locale = null): static
+    /**
+     * Set the state to be a native SurveyJS state
+     * @param bool $condition
+     * @return $this
+     */
+    public function nativeState(bool $condition = true): static
     {
-        $this->locale = $locale ?: app()->getLocale();
+        $this->nativeState = $condition;
+        return $this;
+    }
 
+    /**
+     * Set custom components for the survey
+     * @param array $components
+     * @return $this
+     */
+    public function components(array $components): static
+    {
+        $this->components = $components;
+        return $this;
+    }
+
+    /**
+     * Hide the complete notification
+     * @param bool $condition
+     * @return $this
+     */
+    public function hideCompleteNotification(bool $condition = true): static
+    {
+        $this->hideCompleteNotification = $condition;
         return $this;
     }
 }

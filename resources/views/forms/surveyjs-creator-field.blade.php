@@ -12,12 +12,14 @@
             licenseKey: '{{$field->licenseKey}}',
             availableQuestionTypes: @js($field->availableQuestionTypes),
             pageEditMode: '{{ $field->pageEditMode }}',
-            showSurveyTitle: '{{ $field->showSurveyTitle }}',
+            showSurveyTitle: {{ $field->showSurveyTitle ? 'true' : 'false'}},
             formLocale: '{{ $field->formLocale }}',
             creatorLocale: '{{ $field->creatorLocale }}',
             showJSONEditorTab: {{ $field->showJSONEditorTab ? 'true' : 'false' }},
+            components: @js($field->components),
 
             initCreator() {
+
                 const creatorOptions = {
                     showJSONEditorTab: this.showJSONEditorTab,
                     showSurveyTitle: this.showSurveyTitle,
@@ -35,6 +37,8 @@
                 }
 
                 Serializer.findProperty('survey', 'locale').visible = false;
+
+                window.registerCreatorComponents(this.components);
 
                 const creator = new SurveyCreator(creatorOptions);
 
@@ -88,7 +92,7 @@
         }"
     >
         <x-filament::card>
-            <div id="surveyCreator" style="height: 100vh;"></div>
+            <div id="surveyCreator" style="height: 100vh; z-index: 1;position: sticky;"></div>
         </x-filament::card>
     </div>
 </x-dynamic-component>

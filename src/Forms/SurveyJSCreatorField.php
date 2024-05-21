@@ -30,6 +30,8 @@ class SurveyJSCreatorField extends Field
 
     public ?bool $showJSONEditorTab = false;
 
+    public ?array $components = [];
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -126,6 +128,12 @@ class SurveyJSCreatorField extends Field
     {
         $this->showJSONEditorTab = $condition;
 
+        return $this;
+    }
+
+    public function components(array $components): static
+    {
+        $this->components = $components;
         return $this;
     }
 }
