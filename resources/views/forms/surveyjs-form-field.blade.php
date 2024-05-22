@@ -53,11 +53,9 @@
                 }
             }
 
-            if(this.answerData) {
-                this.surveyInstance.data = this.answerData;
-            }
 
-            /*if(this.answerData) {
+
+            if(this.answerData) {
                 this.answerData.forEach(function(answer) {
 
                     // if Alpine.raw(answer.value) is an array containing objects, we need to convert it to a string
@@ -71,9 +69,9 @@
                         this.surveyInstance.setValue(answer.name, Alpine.raw(answer.value));
                     }
 
-                    //this.surveyInstance.setValue(answer.name, Alpine.raw(answer.value));
+                    this.surveyInstance.setValue(answer.name, Alpine.raw(answer.value));
                 }.bind(this));
-            }*/
+            }
 
             this.surveyInstance.getAllQuestions().forEach(function(question) {
                 question.readOnly = this.readOnly;

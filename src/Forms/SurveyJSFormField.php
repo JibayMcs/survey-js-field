@@ -67,6 +67,11 @@ class SurveyJSFormField extends Field
                 'record' => $component->getRecord(),
                 'state' => $state,
             ]);
+
+            $component->answerData = $component->evaluate($component->loadAnswersUsing, [
+                'record' => $component->getRecord(),
+                'state' => $state,
+            ]);
         });
 
         $this->completeNotification();
