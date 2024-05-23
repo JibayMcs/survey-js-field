@@ -13,7 +13,7 @@ trait CanLoadAnswers
     {
         $questions = [];
 
-        if(!$pages) {
+        if (! $pages) {
             return $questions;
         }
 
