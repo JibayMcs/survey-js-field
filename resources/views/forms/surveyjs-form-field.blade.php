@@ -306,14 +306,14 @@
 
 
     <template x-if="!loading">
-        <div class="flex justify-between" wire:ignore>
+        <div class="flex justify-between" wire:ignore.self>
 
             @if($field->showPreviousButton && $field->showButtons)
                 <x-filament::button
                     x-show="pageCount > 1"
                     outlined
                     @click="previous"
-                    wire:ignore
+                    wire:ignore.self
                 >
                     Précédent
                 </x-filament::button>
@@ -323,7 +323,7 @@
                 <x-filament::button
                     x-show="!isLastPage"
                     @click="next"
-                    wire:ignore
+                    wire:ignore.self
                 >
                     Suivant
                 </x-filament::button>
@@ -334,7 +334,7 @@
                     x-show="isLastPage && !readOnly"
                     @click="onSurveyComplete"
                     color="success"
-                    wire:ignore
+                    wire:ignore.self
                 >
                     Terminer l'évaluation
                 </x-filament::button>
@@ -344,6 +344,7 @@
                     x-show="isLastPage && readOnly"
                     @click="redirectBack"
                     color="success"
+                    wire:ignore.self
                 >
                     Retour à la liste
                 </x-filament::button>
