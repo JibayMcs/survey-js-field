@@ -4,8 +4,7 @@ namespace JibayMcs\SurveyJsField\Forms\Concerns;
 
 trait CanLoadAnswers
 {
-
-    function loadAnswers($record, $statePath, $mutatedFormData)
+    public function loadAnswers($record, $statePath, $mutatedFormData)
     {
         return array_merge($mutatedFormData, $this->extractQuestionsWithValues($record->{$statePath}));
     }

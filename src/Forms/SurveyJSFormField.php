@@ -73,7 +73,7 @@ class SurveyJSFormField extends Field
                 'state' => $state,
             ]);
 
-//            dd($component->loadAnswers($component->getRecord(), $component->statePath, $component->mutatedFormData));
+            //            dd($component->loadAnswers($component->getRecord(), $component->statePath, $component->mutatedFormData));
 
             $component->mutatedFormData = $component->loadAnswers($component->getRecord(), $component->statePath, $component->mutatedFormData);
 
@@ -91,7 +91,7 @@ class SurveyJSFormField extends Field
                     function (SurveyJSFormField $component) {
                         $component->callOnCompleteSurvey($this->getState(), $component->getRecord());
 
-                        if (!$this->hideCompleteNotification) {
+                        if (! $this->hideCompleteNotification) {
                             $component->successNotification->send();
                         }
                     },
@@ -114,7 +114,7 @@ class SurveyJSFormField extends Field
     /**
      * Hide all the navigation buttons
      *
-     * @param bool $condition
+     * @param  bool  $condition
      * @return $this
      */
     public function hideNavigationButtons(): static
@@ -202,7 +202,7 @@ class SurveyJSFormField extends Field
      */
     public function callOnCompleteSurvey(mixed $state, ?Model $record): void
     {
-        if ($this->onCompleteSurveyClosure && !$this->disableActions) {
+        if ($this->onCompleteSurveyClosure && ! $this->disableActions) {
             $this->evaluate($this->onCompleteSurveyClosure, ['state' => $state, 'record' => $record]);
         }
     }
@@ -254,7 +254,7 @@ class SurveyJSFormField extends Field
     /**
      * Mutate the data before filling the form
      *
-     * @param bool $condition
+     * @param  bool  $condition
      * @return $this
      */
     public function mutateDataBeforeFillForm(array|Closure $data): static
@@ -288,8 +288,8 @@ class SurveyJSFormField extends Field
         $allowedValues = CheckErrorsMode::getValues();
 
         //check if the value is allowed
-        if (!in_array($mode, $allowedValues)) {
-            throw new \Exception('Invalid value for CheckErrorsMode, allowed values are: ' . implode(', ', $allowedValues) . '.');
+        if (! in_array($mode, $allowedValues)) {
+            throw new \Exception('Invalid value for CheckErrorsMode, allowed values are: '.implode(', ', $allowedValues).'.');
         }
 
         $this->checkErrorsMode = $mode->value;
@@ -312,7 +312,7 @@ class SurveyJSFormField extends Field
     /**
      * Set the answers for the survey
      *
-     * @param array $answers
+     * @param  array  $answers
      * @return $this
      */
     public function loadAnswersUsing(Closure $closure): static
