@@ -74,6 +74,8 @@
             })
 
             this.surveyInstance.onAfterRenderSurvey.add(function(sender, options) {
+                console.log('onAfterRenderSurvey');
+
                 if(this.pageCount === -1) {
                     this.pageCount = sender.visiblePages.length;
                 }
@@ -110,7 +112,6 @@
                 } else {
                     this.updateNonNativeState(sender, options);
                 }
-                console.log(this.state);
                 // Logique supplémentaire si nécessaire, par exemple, mettre à jour le composant Livewire
                 $wire.dispatchFormEvent('surveyjs::saveDraftData', this.state);
             }.bind(this));
