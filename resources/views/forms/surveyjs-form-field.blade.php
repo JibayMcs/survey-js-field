@@ -303,52 +303,46 @@
         <x-filament::loading-indicator class="h-5 w-5" />
     </div>
 
-    <survey params="survey: model" wire:ignore.self></survey>
+    <survey params="survey: model" wire:ignore></survey>
 
-    <template x-if="!loading">
-        <div class="flex justify-between" wire:ignore.self>
+    <div x-show="!loading" class="flex justify-between" wire:ignore>
 
-            @if($field->showPreviousButton && $field->showButtons)
-                <x-filament::button
-                    x-show="pageCount > 1"
-                    outlined
-                    @click="previous"
-                    wire:ignore
-                >
-                    Précédent
-                </x-filament::button>
-            @endif
+        @if($field->showPreviousButton && $field->showButtons)
+            <x-filament::button
+                x-show="pageCount > 1"
+                outlined
+                @click="previous"
+            >
+                Précédent
+            </x-filament::button>
+        @endif
 
-            @if($field->showNextButton && $field->showButtons)
-                <x-filament::button
-                    x-show="!isLastPage"
-                    @click="next"
-                    wire:ignore
-                >
-                    Suivant
-                </x-filament::button>
-            @endif
+        @if($field->showNextButton && $field->showButtons)
+            <x-filament::button
+                x-show="!isLastPage"
+                @click="next"
+            >
+                Suivant
+            </x-filament::button>
+        @endif
 
-            @if($field->showCompleteButton && $field->showButtons)
-                <x-filament::button
-                    x-show="isLastPage && !readOnly"
-                    @click="onSurveyComplete"
-                    color="success"
-                    wire:ignore
-                >
-                    Terminer l'évaluation
-                </x-filament::button>
-            @endif
+        @if($field->showCompleteButton && $field->showButtons)
+            <x-filament::button
+                x-show="isLastPage && !readOnly"
+                @click="onSurveyComplete"
+                color="success"
+            >
+                Terminer l'évaluation
+            </x-filament::button>
+        @endif
 
-                <x-filament::button
-                    x-show="isLastPage && readOnly"
-                    @click="redirectBack"
-                    color="success"
-                    wire:ignore
-                >
-                    Retour à la liste
-                </x-filament::button>
-        </div>
-    </template>
+        <x-filament::button
+            x-show="isLastPage && readOnly"
+            @click="redirectBack"
+            color="success"
+        >
+            Retour à la liste
+        </x-filament::button>
+    </div>
 
 </div>
