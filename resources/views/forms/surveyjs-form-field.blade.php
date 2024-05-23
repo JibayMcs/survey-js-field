@@ -18,6 +18,7 @@
         answerData: @js($field->answerData ?? []),
         nativeState: {{ $field->nativeState ? 'true' : 'false' }},
         components: @js($field->components),
+        loading: true,
 
         initForm() {
             let surveyJson = Alpine.raw(this.state);
@@ -73,9 +74,7 @@
                 model: this.surveyInstance,
             })
 
-
             this.surveyInstance.onAfterRenderSurvey.add(function(sender, options) {
-
                 if(this.pageCount === -1) {
                     this.pageCount = sender.visiblePages.length;
                 }
@@ -85,6 +84,8 @@
                 } else {
                     this.isLastPage = false
                 }
+
+                this.loading = false;
             }.bind(this))
 
             this.surveyInstance.onCurrentPageChanged.add(function(sender, options) {
@@ -256,8 +257,6 @@
                     this.state.push(data);
                 }
             }
-
-            console.log(JSON.stringify(this.state));
         },
 
         next() {
@@ -287,38 +286,46 @@
 
     }"
 >
+    <div x-show="loading" class="flex justify-center items-center flex-col">
+        <span class="font-semibold text-xl">Chargement de l'évaluation</span>
+        <x-filament::loading-indicator class="h-5 w-5" />
+    </div>
+
     <survey params="survey: model" wire:ignore></survey>
 
-    <div class="flex justify-between" wize:ignore>
 
-        @if($field->showPreviousButton && $field->showButtons)
-            <x-filament::button
-                x-show="pageCount > 1"
-                outlined
-                @click="previous"
-            >
-                Précédent
-            </x-filament::button>
-        @endif
+    <template x-if="!loading">
+        <div class="flex justify-between" wire:ignore>
 
-        @if($field->showNextButton && $field->showButtons)
-            <x-filament::button
-                x-show="!isLastPage"
-                @click="next"
-            >
-                Suivant
-            </x-filament::button>
-        @endif
+            @if($field->showPreviousButton && $field->showButtons)
+                <x-filament::button
+                    x-show="pageCount > 1"
+                    outlined
+                    @click="previous"
+                >
+                    Précédent
+                </x-filament::button>
+            @endif
 
-        @if($field->showCompleteButton && $field->showButtons)
-            <x-filament::button
-                x-show="isLastPage"
-                @click="onSurveyComplete"
-                color="success"
-            >
-                Terminer l'évaluation
-            </x-filament::button>
-        @endif
-    </div>
+            @if($field->showNextButton && $field->showButtons)
+                <x-filament::button
+                    x-show="!isLastPage"
+                    @click="next"
+                >
+                    Suivant
+                </x-filament::button>
+            @endif
+
+            @if($field->showCompleteButton && $field->showButtons)
+                <x-filament::button
+                    x-show="isLastPage"
+                    @click="onSurveyComplete"
+                    color="success"
+                >
+                    Terminer l'évaluation
+                </x-filament::button>
+            @endif
+        </div>
+    </template>
 
 </div>
