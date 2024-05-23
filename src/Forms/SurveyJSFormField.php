@@ -27,7 +27,7 @@ class SurveyJSFormField extends Field
 
     public bool $showCompleteButton = true;
 
-    public bool $readOnly = false;
+    public mixed $readOnly = false;
 
     public bool $disableActions = false;
 
@@ -46,8 +46,6 @@ class SurveyJSFormField extends Field
     public string $checkErrorsMode;
 
     public string $locale;
-
-    public ?array $answerData;
 
     public ?Closure $loadAnswersUsing = null;
 
@@ -68,19 +66,20 @@ class SurveyJSFormField extends Field
         $this->locale = app()->getLocale();
 
         $this->afterStateHydrated(static function (SurveyJSFormField $component, $state): void {
+
+            if (is_callable($component->readOnly)) {
+                $component->readOnly = $component->evaluate($component->readOnly, [
+                    'record' => $component->getRecord(),
+                    'state' => $state,
+                ]);
+            }
+
             $component->mutatedFormData = $component->evaluate($component->mutatedFormData, [
                 'record' => $component->getRecord(),
                 'state' => $state,
             ]);
 
-            //            dd($component->loadAnswers($component->getRecord(), $component->statePath, $component->mutatedFormData));
-
             $component->mutatedFormData = $component->loadAnswers($component->getRecord(), $component->statePath, $component->mutatedFormData);
-
-            $component->answerData = $component->evaluate($component->loadAnswersUsing, [
-                'record' => $component->getRecord(),
-                'state' => $state,
-            ]);
         });
 
         $this->completeNotification();
@@ -91,7 +90,7 @@ class SurveyJSFormField extends Field
                     function (SurveyJSFormField $component) {
                         $component->callOnCompleteSurvey($this->getState(), $component->getRecord());
 
-                        if (! $this->hideCompleteNotification) {
+                        if (!$this->hideCompleteNotification) {
                             $component->successNotification->send();
                         }
                     },
@@ -114,7 +113,7 @@ class SurveyJSFormField extends Field
     /**
      * Hide all the navigation buttons
      *
-     * @param  bool  $condition
+     * @param bool $condition
      * @return $this
      */
     public function hideNavigationButtons(): static
@@ -165,7 +164,7 @@ class SurveyJSFormField extends Field
      *
      * @return $this
      */
-    public function readOnly(bool $condition = true): static
+    public function readOnly(bool|Closure $condition = true): static
     {
         $this->readOnly = $condition;
 
@@ -202,7 +201,7 @@ class SurveyJSFormField extends Field
      */
     public function callOnCompleteSurvey(mixed $state, ?Model $record): void
     {
-        if ($this->onCompleteSurveyClosure && ! $this->disableActions) {
+        if ($this->onCompleteSurveyClosure && !$this->disableActions) {
             $this->evaluate($this->onCompleteSurveyClosure, ['state' => $state, 'record' => $record]);
         }
     }
@@ -254,7 +253,7 @@ class SurveyJSFormField extends Field
     /**
      * Mutate the data before filling the form
      *
-     * @param  bool  $condition
+     * @param bool $condition
      * @return $this
      */
     public function mutateDataBeforeFillForm(array|Closure $data): static
@@ -288,8 +287,8 @@ class SurveyJSFormField extends Field
         $allowedValues = CheckErrorsMode::getValues();
 
         //check if the value is allowed
-        if (! in_array($mode, $allowedValues)) {
-            throw new \Exception('Invalid value for CheckErrorsMode, allowed values are: '.implode(', ', $allowedValues).'.');
+        if (!in_array($mode, $allowedValues)) {
+            throw new \Exception('Invalid value for CheckErrorsMode, allowed values are: ' . implode(', ', $allowedValues) . '.');
         }
 
         $this->checkErrorsMode = $mode->value;
@@ -305,19 +304,6 @@ class SurveyJSFormField extends Field
     public function locale(?string $locale = null): static
     {
         $this->locale = $locale ?: app()->getLocale();
-
-        return $this;
-    }
-
-    /**
-     * Set the answers for the survey
-     *
-     * @param  array  $answers
-     * @return $this
-     */
-    public function loadAnswersUsing(Closure $closure): static
-    {
-        $this->loadAnswersUsing = $closure;
 
         return $this;
     }

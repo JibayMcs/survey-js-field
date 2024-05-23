@@ -15,7 +15,6 @@
         allFieldsRequired: {{ $field->allFieldsRequired ? 'true' : 'false' }},
         checkErrorsMode: '{{ $field->checkErrorsMode }}',
         locale: '{{ $field->locale }}',
-        answerData: @js($field->answerData ?? []),
         nativeState: {{ $field->nativeState ? 'true' : 'false' }},
         components: @js($field->components),
         loading: true,
@@ -98,6 +97,10 @@
 
             this.surveyInstance.onValueChanged.add(function(sender, options) {
 
+                if(this.readOnly) {
+                    return;
+                }
+
                 if(this.checkErrorsMode === 'onValueChanged') {
                     sender.validate();
                 }
@@ -107,7 +110,7 @@
                 } else {
                     this.updateNonNativeState(sender, options);
                 }
-
+                console.log(this.state);
                 // Logique supplémentaire si nécessaire, par exemple, mettre à jour le composant Livewire
                 $wire.dispatchFormEvent('surveyjs::saveDraftData', this.state);
             }.bind(this));
@@ -269,6 +272,10 @@
 
         onSurveyComplete() {
 
+            if(this.readOnly) {
+                return;
+            }
+
             let validated = true;
 
             if(this.allFieldsRequired) {
@@ -283,6 +290,10 @@
                 $wire.dispatchFormEvent('surveyjs::completeSurvey');
             }
         },
+
+        redirectBack() {
+            window.location.href = '{{ url()->previous() }}';
+        }
 
     }"
 >
@@ -302,6 +313,7 @@
                     x-show="pageCount > 1"
                     outlined
                     @click="previous"
+                    wire:ignore
                 >
                     Précédent
                 </x-filament::button>
@@ -311,6 +323,7 @@
                 <x-filament::button
                     x-show="!isLastPage"
                     @click="next"
+                    wire:ignore
                 >
                     Suivant
                 </x-filament::button>
@@ -318,13 +331,22 @@
 
             @if($field->showCompleteButton && $field->showButtons)
                 <x-filament::button
-                    x-show="isLastPage"
+                    x-show="isLastPage && !readOnly"
                     @click="onSurveyComplete"
                     color="success"
+                    wire:ignore
                 >
                     Terminer l'évaluation
                 </x-filament::button>
             @endif
+
+                <x-filament::button
+                    x-show="isLastPage && readOnly"
+                    @click="redirectBack"
+                    color="success"
+                >
+                    Retour à la liste
+                </x-filament::button>
         </div>
     </template>
 
