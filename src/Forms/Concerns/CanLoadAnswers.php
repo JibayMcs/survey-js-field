@@ -9,9 +9,13 @@ trait CanLoadAnswers
         return array_merge($mutatedFormData, $this->extractQuestionsWithValues($record->{$statePath}));
     }
 
-    private function extractQuestionsWithValues(array $pages)
+    private function extractQuestionsWithValues(?array $pages = null)
     {
         $questions = [];
+
+        if(!$pages) {
+            return $questions;
+        }
 
         foreach ($pages as $page) {
             if (isset($page['questions'])) {
