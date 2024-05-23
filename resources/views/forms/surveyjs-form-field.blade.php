@@ -305,7 +305,7 @@
 
     <survey params="survey: model" wire:ignore.self></survey>
 
-    <template x-if="!loading" wire:ignore>
+    <template x-if="!loading" wire:ignore.self>
         <div class="flex justify-between" wire:ignore>
 
             @if($field->showPreviousButton && $field->showButtons)
