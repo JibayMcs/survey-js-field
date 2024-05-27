@@ -90,7 +90,7 @@ class SurveyJSFormField extends Field
                 ]);
             }
 
-            if(is_callable($component->autoSave)) {
+            if (is_callable($component->autoSave)) {
                 $component->autoSave = $component->evaluate($component->autoSave, [
                     'record' => $component->getRecord(),
                     'state' => $state,
