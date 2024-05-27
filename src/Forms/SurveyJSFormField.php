@@ -55,7 +55,7 @@ class SurveyJSFormField extends Field
 
     public bool $hideCompleteNotification = false;
 
-    public ?array $draftData = null;
+    public array|Closure|null $editableFields = null;
 
     protected function setUp(): void
     {
@@ -80,6 +80,13 @@ class SurveyJSFormField extends Field
             ]);
 
             $component->mutatedFormData = $component->loadAnswers($component->getRecord(), $component->statePath, $component->mutatedFormData);
+
+            if(is_callable($component->editableFields)) {
+                $component->editableFields = $component->evaluate($component->editableFields, [
+                    'record' => $component->getRecord(),
+                    'state' => $state,
+                ]);
+            }
         });
 
         $this->completeNotification();
@@ -340,6 +347,18 @@ class SurveyJSFormField extends Field
     public function hideCompleteNotification(bool $condition = true): static
     {
         $this->hideCompleteNotification = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Set the editable fields for the survey
+     *
+     * @return $this
+     */
+    public function editableFields(array|Closure|null $fields): static
+    {
+        $this->editableFields = $fields;
 
         return $this;
     }

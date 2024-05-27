@@ -18,6 +18,7 @@
         nativeState: {{ $field->nativeState ? 'true' : 'false' }},
         components: @js($field->components),
         loading: true,
+        editableFields: @js($field->editableFields),
 
         initForm() {
             let surveyJson = Alpine.raw(this.state);
@@ -48,7 +49,11 @@
 
 
             this.surveyInstance.getAllQuestions().forEach(function(question) {
-                question.readOnly = this.readOnly;
+                if(this.editableFields) {
+                    question.readOnly = !this.editableFields.includes(question.name);
+                } else {
+                    question.readOnly = this.readOnly;
+                }
 
                 if(this.allFieldsRequired) {
                     question.isRequired = true;
@@ -98,8 +103,10 @@
             }.bind(this))
 
             this.surveyInstance.onValueChanged.add(function(sender, options) {
-
-                if(this.readOnly) {
+                console.log('onValueChanged');
+                if(this.editableFields) {
+                    options.readOnly = !this.editableFields.includes(options.name);
+                } else {
                     return;
                 }
 
