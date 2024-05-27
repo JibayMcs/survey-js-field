@@ -19,6 +19,7 @@
         components: @js($field->components),
         loading: true,
         editableFields: @js($field->editableFields),
+        autoSave: {{ $field->autoSave ? 'true' : 'false' }},
 
         initForm() {
             let surveyJson = Alpine.raw(this.state);
@@ -47,6 +48,28 @@
             this.surveyInstance.showNavigationButtons = false;
             this.surveyInstance.checkErrorsMode = this.checkErrorsMode;
 
+            //if this.autoSave set auto save every 5 minutes
+            if(this.autoSave) {
+                setInterval(() => {
+
+                    if(this.nativeState) {
+                        this.state = this.surveyInstance.data;
+                    } else {
+                        this.surveyInstance.getAllQuestions().forEach(function(question) {
+                            this.updateNonNativeState(this.surveyInstance, {question: question});
+                        }.bind(this));
+                    }
+
+                    $wire.dispatchFormEvent('surveyjs::saveDraftData', this.state);
+                    new FilamentNotification()
+                        .title('Sauvegarde automatique effectuée')
+                        .success()
+                        .send();
+
+                    console.log('Auto saved data');
+
+                }, 300000);
+            }
 
             this.surveyInstance.getAllQuestions().forEach(function(question) {
                 if(this.editableFields && this.readOnly) {
@@ -78,7 +101,7 @@
 
             window.knockout.applyBindings({
                 model: this.surveyInstance,
-            })
+            });
 
             this.surveyInstance.onAfterRenderSurvey.add(function(sender, options) {
                 console.log('onAfterRenderSurvey');

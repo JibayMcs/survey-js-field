@@ -57,6 +57,8 @@ class SurveyJSFormField extends Field
 
     public array|Closure|null $editableFields = null;
 
+    public Closure|bool $autoSave = true;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -83,6 +85,13 @@ class SurveyJSFormField extends Field
 
             if (is_callable($component->editableFields)) {
                 $component->editableFields = $component->evaluate($component->editableFields, [
+                    'record' => $component->getRecord(),
+                    'state' => $state,
+                ]);
+            }
+
+            if(is_callable($component->autoSave)) {
+                $component->autoSave = $component->evaluate($component->autoSave, [
                     'record' => $component->getRecord(),
                     'state' => $state,
                 ]);
@@ -359,6 +368,18 @@ class SurveyJSFormField extends Field
     public function editableFields(array|Closure|null $fields): static
     {
         $this->editableFields = $fields;
+
+        return $this;
+    }
+
+    /**
+     * Set the auto save for the survey
+     *
+     * @return $this
+     */
+    public function autoSave(Closure|bool $condition = true): static
+    {
+        $this->autoSave = $condition;
 
         return $this;
     }
