@@ -81,7 +81,7 @@ class SurveyJSFormField extends Field
 
             $component->mutatedFormData = $component->loadAnswers($component->getRecord(), $component->statePath, $component->mutatedFormData);
 
-            if(is_callable($component->editableFields)) {
+            if (is_callable($component->editableFields)) {
                 $component->editableFields = $component->evaluate($component->editableFields, [
                     'record' => $component->getRecord(),
                     'state' => $state,
