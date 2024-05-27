@@ -49,10 +49,12 @@
 
 
             this.surveyInstance.getAllQuestions().forEach(function(question) {
-                if(this.editableFields) {
+                if(this.editableFields && this.readOnly) {
                     question.readOnly = !this.editableFields.includes(question.name);
-                } else {
-                    question.readOnly = this.readOnly;
+                }
+
+                if(!this.editableFields && this.readOnly) {
+                    question.readOnly = true;
                 }
 
                 if(this.allFieldsRequired) {
@@ -104,9 +106,11 @@
 
             this.surveyInstance.onValueChanged.add(function(sender, options) {
                 console.log('onValueChanged');
-                if(this.editableFields) {
+                if(this.editableFields && this.readOnly) {
                     options.readOnly = !this.editableFields.includes(options.name);
-                } else {
+                }
+
+                if(this.readOnly) {
                     return;
                 }
 
