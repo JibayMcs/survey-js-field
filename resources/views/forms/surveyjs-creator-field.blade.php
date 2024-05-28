@@ -17,6 +17,7 @@
             creatorLocale: '{{ $field->creatorLocale }}',
             showJSONEditorTab: {{ $field->showJSONEditorTab ? 'true' : 'false' }},
             components: @js($field->components),
+            loading: true,
 
             initCreator() {
 
@@ -42,6 +43,37 @@
 
                 const creator = new SurveyCreator(creatorOptions);
 
+                creator.onShowingProperty.add(function(sender, options) {
+                    let questionsType = [
+                        'question',
+                        'boolean',
+                        'checkbox',
+                        'comment',
+                        'dropdown',
+                        'tagbox',
+                        'expression',
+                        'file',
+                        'html',
+                        'image',
+                        'imagepicker',
+                        'matrix',
+                        'matrixdropdown',
+                        'matrixdynamic',
+                        'multipletext',
+                        'panel',
+                        'paneldynamic',
+                        'radiogroup',
+                        'rating',
+                        'ranking',
+                        'signaturepad',
+                        'text',
+                    ];
+
+                    if(questionsType.includes(options.obj.getType())) {
+                        options.canShow = !window.hiddenProperties.includes(options.property.name);
+                    }
+                });
+
                 this.$watch('state', (value) => {
                     // check if the value is a string
                     if (typeof value === 'string') {
@@ -57,11 +89,9 @@
 
                 if(creator != null) {
                     creator.render('surveyCreator');
+                    this.loading = false;
+                    document.getElementById('editor-section').classList.remove('hidden');
                 }
-
-                creator.onModified.add(function(sender, options) {
-                    this.state = sender.JSON
-                }.bind(this));
 
                 creator.onUploadFile.add(function(_, options) {
                         $wire.uploadMultiple('files', options.files, (uploadedFilename) => {
@@ -91,8 +121,19 @@
             },
         }"
     >
-        <x-filament::card>
-            <div id="surveyCreator" style="height: 100vh; z-index: 1;position: sticky;"></div>
-        </x-filament::card>
+        <div x-show="loading" class="flex justify-center items-center flex-col">
+            <span class="font-semibold text-xl">Chargement de l'éditeur</span>
+            <x-filament::loading-indicator class="h-8 w-8" />
+        </div>
+
+        <div id="editor-section"
+            class="hidden fi-section rounded-xl bg-white shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10">
+
+            <div class="fi-section-content-ctn">
+                <div class="fi-section-content p-6">
+                    <div id="surveyCreator" style="height: 100vh; z-index: 1; position: sticky;"></div>
+                </div>
+            </div>
+        </div>
     </div>
 </x-dynamic-component>

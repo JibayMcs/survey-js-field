@@ -1,4 +1,5 @@
 <div
+    wire:ignore
     x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('survey-js-field-styles', 'jibaymcs/survey-js-field'))]"
     x-load-js="[@js(\Filament\Support\Facades\FilamentAsset::getScriptSrc('surveyjs-form-scripts', 'jibaymcs/survey-js-field'))]"
     x-init="initForm()"
@@ -38,13 +39,18 @@
             window.surveyLocalization.locales['fr'].requiredError = 'Ce champ est obligatoire';
             window.surveyLocalization.locales['en'].requiredError = 'This field is required';
 
-            let theme = filamentData.surveyjs_form_theme;
+            //let theme = filamentData.surveyjs_form_theme;
 
             if(this.panelless) {
                 theme.isPanelless = this.panelless;
             }
 
-            this.surveyInstance.applyTheme(theme);
+            window.addEventListener('theme-changed', (event) => {
+                this.surveyInstance.applyTheme(event.detail === 'dark' ? window.DefaultDark : window.DefaultLight);
+            });
+
+            this.surveyInstance.applyTheme($store.theme === 'dark' ? window.DefaultDark : window.DefaultLight);
+
             this.surveyInstance.showNavigationButtons = false;
             this.surveyInstance.checkErrorsMode = this.checkErrorsMode;
 
@@ -104,7 +110,7 @@
             });
 
             this.surveyInstance.onAfterRenderSurvey.add(function(sender, options) {
-                console.log('onAfterRenderSurvey');
+                console.info('Survey successfully rendered');
 
                 if(this.pageCount === -1) {
                     this.pageCount = sender.visiblePages.length;
@@ -128,7 +134,6 @@
             }.bind(this))
 
             this.surveyInstance.onValueChanged.add(function(sender, options) {
-                console.log('onValueChanged');
                 if(this.editableFields && this.readOnly) {
                     options.readOnly = !this.editableFields.includes(options.name);
                 }
@@ -159,12 +164,10 @@
             }
 
             $wire.$on('surveyjs::form::previous', () => {
-                console.log('previous')
                 this.surveyInstance.prevPage()
             });
 
             $wire.$on('surveyjs::form::next', () => {
-                console.log('next')
                 this.surveyInstance.nextPage()
             });
         },
@@ -334,49 +337,70 @@
 >
     <div x-show="loading" class="flex justify-center items-center flex-col">
         <span class="font-semibold text-xl">Chargement de l'évaluation</span>
-        <x-filament::loading-indicator class="h-5 w-5" />
+        <x-filament::loading-indicator class="h-8 w-8" />
     </div>
 
     <survey params="survey: model" wire:ignore></survey>
 
-    <div x-show="!loading" class="flex justify-between" wire:ignore>
+    <template x-if="!loading">
+        <div class="flex justify-between" wire:ignore>
 
-        @if($field->showPreviousButton && $field->showButtons)
-            <x-filament::button
-                x-show="pageCount > 1"
-                outlined
-                @click="previous"
+            @if($field->showPreviousButton && $field->showButtons)
+                <button style="--c-400:var(--primary-400);--c-500:var(--primary-500);--c-600:var(--primary-600);"
+                        class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-primary fi-color-primary fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid fi-btn-outlined ring-1 text-custom-600 ring-custom-600 hover:bg-custom-400/10 dark:text-custom-400 dark:ring-custom-500"
+                        type="button"
+                        x-show="pageCount > 1"
+                        @click="previous"
+                >
+                    <span class="fi-btn-label">Précédent</span>
+                </button>
+            @endif
+
+            @if($field->showNextButton && $field->showButtons)
+                <button style="--c-400:var(--primary-400);--c-500:var(--primary-500);--c-600:var(--primary-600);"
+                        class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-primary fi-color-primary fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50"
+                        type="button"
+                        x-show="!isLastPage"
+                        @click="next"
+                >
+                    <span class="fi-btn-label">Suivant</span>
+                </button>
+            @endif
+
+            @if($field->showCompleteButton && $field->showButtons)
+                <button style="--c-400: var(--success-400); --c-500: var(--success-500); --c-600: var(--success-600);"
+                        class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-success fi-color-success fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50"
+                        type="button"
+                        x-show="isLastPage && !readOnly"
+                        @click="onSurveyComplete"
+                >
+                    <span class="fi-btn-label">Terminer l'évaluation</span>
+                </button>
+            @endif
+
+            <button style="--c-400: var(--success-400); --c-500: var(--success-500); --c-600: var(--success-600);"
+                    class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-success fi-color-success fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50"
+                    type="button"
+                    x-show="isLastPage && readOnly"
+                    @click="redirectBack"
             >
-                Précédent
-            </x-filament::button>
-        @endif
+                <span class="fi-btn-label">Retour à la liste</span>
+            </button>
+        </div>
+    </template>
 
-        @if($field->showNextButton && $field->showButtons)
-            <x-filament::button
-                x-show="!isLastPage"
-                @click="next"
-            >
-                Suivant
-            </x-filament::button>
-        @endif
+    @push('styles')
+        <style>
+            .sd-root-modern {
+                background: transparent !important;
+            }
 
-        @if($field->showCompleteButton && $field->showButtons)
-            <x-filament::button
-                x-show="isLastPage && !readOnly"
-                @click="onSurveyComplete"
-                color="success"
-            >
-                Terminer l'évaluation
-            </x-filament::button>
-        @endif
-
-        <x-filament::button
-            x-show="isLastPage && readOnly"
-            @click="redirectBack"
-            color="success"
-        >
-            Retour à la liste
-        </x-filament::button>
-    </div>
-
+            :is(.dark) {
+                .sd-input {
+                    background-color: #18181b !important;
+                    color: #e2e8f0 !important;
+                }
+            }
+        </style>
+    @endpush
 </div>
