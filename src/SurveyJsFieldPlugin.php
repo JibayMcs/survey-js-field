@@ -9,6 +9,7 @@ use Filament\Support\Facades\FilamentAsset;
 class SurveyJsFieldPlugin implements Plugin
 {
     public ?array $components = [];
+
     public ?array $hiddenProperties = [];
 
     public ?array $hiddenSurveyProperties = [];
@@ -53,6 +54,7 @@ class SurveyJsFieldPlugin implements Plugin
     public function components(?array $components = []): static
     {
         $this->components = $components;
+
         return $this;
     }
 
