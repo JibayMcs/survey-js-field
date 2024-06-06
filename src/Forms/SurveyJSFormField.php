@@ -83,7 +83,7 @@ class SurveyJSFormField extends Field
                 'state' => $state,
             ]);
 
-            if ($this->canLoadAnswers) {
+            if ($component->canLoadAnswers) {
                 $component->mutatedFormData = $component->loadAnswers($component->getRecord(), $component->statePath, $component->mutatedFormData);
             }
 
