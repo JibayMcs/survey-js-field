@@ -8,7 +8,7 @@
         x-load-js="[@js(\Filament\Support\Facades\FilamentAsset::getScriptSrc('surveyjs-creator-scripts', 'jibaymcs/survey-js-field'))]"
         x-init="initCreator()"
         x-data="{
-            state: $wire.$entangle('{{ $getStatePath() }}'),
+            state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$getStatePath()}')") }},
             licenseKey: '{{$field->licenseKey}}',
             availableQuestionTypes: @js($field->availableQuestionTypes),
             pageEditMode: '{{ $field->pageEditMode }}',
@@ -94,11 +94,11 @@
                 }
 
                 creator.onItemValueAdded.add(function(sender, options) {
-                    this.state = JSON.stringify(creator.JSON);
+                    this.state = creator.JSON;
                 }.bind(this));
 
                 creator.onModified.add(function(sender, options) {
-                    this.state = JSON.stringify(creator.JSON);
+                    this.state = creator.JSON;
                 }.bind(this));
 
                 creator.onUploadFile.add(function(_, options) {
