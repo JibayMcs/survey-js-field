@@ -93,6 +93,14 @@
                     document.getElementById('editor-section').classList.remove('hidden');
                 }
 
+                creator.onItemValueAdded.add(function(sender, options) {
+                    this.state = JSON.stringify(creator.JSON);
+                }.bind(this));
+
+                creator.onModified.add(function(sender, options) {
+                    this.state = JSON.stringify(creator.JSON);
+                }.bind(this));
+
                 creator.onUploadFile.add(function(_, options) {
                         $wire.uploadMultiple('files', options.files, (uploadedFilename) => {
                             $wire.dispatchFormEvent('surveyjs::uploadFiles', { files: uploadedFilename }).then(() => {
