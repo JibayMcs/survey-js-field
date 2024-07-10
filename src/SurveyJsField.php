@@ -2,6 +2,4 @@
 
 namespace JibayMcs\SurveyJsField;
 
-class SurveyJsField
-{
-}
+class SurveyJsField {}
