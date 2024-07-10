@@ -31,6 +31,7 @@ class SurveyJSCreatorField extends Field
     public ?bool $showJSONEditorTab = false;
 
     public ?array $components = [];
+    public ?array $translations = [];
 
     protected function setUp(): void
     {
@@ -134,6 +135,13 @@ class SurveyJSCreatorField extends Field
     public function components(array $components): static
     {
         $this->components = $components;
+
+        return $this;
+    }
+
+    public function translations(array $translations, string $targetLocale = 'en'): static
+    {
+        $this->translations[$targetLocale] = $translations;
 
         return $this;
     }

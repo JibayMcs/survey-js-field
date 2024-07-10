@@ -18,6 +18,7 @@
             showJSONEditorTab: {{ $field->showJSONEditorTab ? 'true' : 'false' }},
             components: @js($field->components),
             loading: true,
+            translations: @js($field->translations),
 
             initCreator() {
 
@@ -40,6 +41,29 @@
                 Serializer.findProperty('survey', 'locale').visible = false;
 
                 window.registerCreatorComponents(this.components);
+
+                if(Object.keys(this.translations).length > 0) {
+                    const currentLocale = editorLocalization.currentLocale;
+                    const customTranslations = this.translations[currentLocale];
+                    const originalTranslations = editorLocalization.getLocale(currentLocale);
+
+                    Object.keys(customTranslations).forEach(sectionKey => {
+                        if (originalTranslations[sectionKey]) {
+                            Object.keys(customTranslations[sectionKey]).forEach(key => {
+                                if (typeof customTranslations[sectionKey][key] === 'object') {
+                                    originalTranslations[sectionKey][key] = {
+                                        ...originalTranslations[sectionKey][key],
+                                        ...customTranslations[sectionKey][key]
+                                    };
+                                } else {
+                                    originalTranslations[sectionKey][key] = customTranslations[sectionKey][key];
+                                }
+                            });
+                        } else {
+                            originalTranslations[sectionKey] = customTranslations[sectionKey];
+                        }
+                    });
+                }
 
                 const creator = new SurveyCreator(creatorOptions);
 
