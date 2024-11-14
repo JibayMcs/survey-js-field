@@ -4,12 +4,10 @@ namespace JibayMcs\SurveyJsField\Forms;
 
 use Closure;
 use Filament\Forms\Components\Field;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
 use JibayMcs\SurveyJsField\Form\CheckErrorsMode;
 use JibayMcs\SurveyJsField\Forms\Concerns\CanLoadAnswers;
-use Livewire\Attributes\On;
 
 class SurveyJSFormField extends Field
 {
@@ -61,6 +59,12 @@ class SurveyJSFormField extends Field
 
     public ?bool $canLoadAnswers = null;
 
+    public string $completeButtonLabel = 'Complete';
+
+    public string $previousButtonLabel = 'Previous';
+
+    public string $nextButtonLabel = 'Next';
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -110,7 +114,7 @@ class SurveyJSFormField extends Field
                     function (SurveyJSFormField $component) {
                         $component->callOnCompleteSurvey($this->getState(), $component->getRecord());
 
-                        if (! $this->hideCompleteNotification) {
+                        if (!$this->hideCompleteNotification) {
                             $component->successNotification->send();
                         }
                     },
@@ -132,10 +136,43 @@ class SurveyJSFormField extends Field
         );
     }
 
+    public function getCompleteButtonLabel(): string
+    {
+        return $this->completeButtonLabel;
+    }
+
+    public function completeButtonLabel(string $label): static
+    {
+        $this->completeButtonLabel = $label;
+        return $this;
+    }
+
+    public function getPreviousButtonLabel(): string
+    {
+        return $this->previousButtonLabel;
+    }
+
+    public function previousButtonLabel(string $label): static
+    {
+        $this->previousButtonLabel = $label;
+        return $this;
+    }
+
+    public function getNextButtonLabel(): string
+    {
+        return $this->nextButtonLabel;
+    }
+
+    public function nextButtonLabel(string $label): static
+    {
+        $this->nextButtonLabel = $label;
+        return $this;
+    }
+
     /**
      * Hide all the navigation buttons
      *
-     * @param  bool  $condition
+     * @param bool $condition
      * @return $this
      */
     public function hideNavigationButtons(): static
@@ -223,7 +260,7 @@ class SurveyJSFormField extends Field
      */
     public function callOnCompleteSurvey(mixed $state, ?Model $record): void
     {
-        if ($this->onCompleteSurveyClosure && ! $this->disableActions) {
+        if ($this->onCompleteSurveyClosure && !$this->disableActions) {
             $this->evaluate($this->onCompleteSurveyClosure, ['state' => $state, 'record' => $record]);
         }
     }
@@ -275,7 +312,7 @@ class SurveyJSFormField extends Field
     /**
      * Mutate the data before filling the form
      *
-     * @param  bool  $condition
+     * @param bool $condition
      * @return $this
      */
     public function mutateDataBeforeFillForm(array|Closure $data): static
@@ -309,8 +346,8 @@ class SurveyJSFormField extends Field
         $allowedValues = CheckErrorsMode::getValues();
 
         //check if the value is allowed
-        if (! in_array($mode, $allowedValues)) {
-            throw new \Exception('Invalid value for CheckErrorsMode, allowed values are: '.implode(', ', $allowedValues).'.');
+        if (!in_array($mode, $allowedValues)) {
+            throw new \Exception('Invalid value for CheckErrorsMode, allowed values are: ' . implode(', ', $allowedValues) . '.');
         }
 
         $this->checkErrorsMode = $mode->value;

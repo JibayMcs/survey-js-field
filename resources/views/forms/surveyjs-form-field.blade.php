@@ -39,17 +39,16 @@
             window.surveyLocalization.locales['fr'].requiredError = 'Ce champ est obligatoire';
             window.surveyLocalization.locales['en'].requiredError = 'This field is required';
 
-            //let theme = filamentData.surveyjs_form_theme;
-
-            if(this.panelless) {
-                theme.isPanelless = this.panelless;
-            }
-
             window.addEventListener('theme-changed', (event) => {
                 this.surveyInstance.applyTheme(event.detail === 'dark' ? window.DefaultDark : window.DefaultLight);
             });
 
+            window.DefaultDark.isPanelless = this.panelless;
+            window.DefaultLight.isPanelless = this.panelless;
+
             this.surveyInstance.applyTheme($store.theme === 'dark' ? window.DefaultDark : window.DefaultLight);
+
+            window.DefaultLight.cssVariables['background-color'] = 'transparent';
 
             this.surveyInstance.showNavigationButtons = false;
             this.surveyInstance.checkErrorsMode = this.checkErrorsMode;
@@ -352,7 +351,7 @@
                         x-show="pageCount > 1"
                         @click="previous"
                 >
-                    <span class="fi-btn-label">Précédent</span>
+                    <span class="fi-btn-label">{{ $field->getCompleteButtonLabel() }}</span>
                 </button>
             @endif
 
@@ -363,7 +362,7 @@
                         x-show="!isLastPage"
                         @click="next"
                 >
-                    <span class="fi-btn-label">Suivant</span>
+                    <span class="fi-btn-label">{{ $field->getNextButtonLabel() }}</span>
                 </button>
             @endif
 
@@ -374,7 +373,7 @@
                         x-show="isLastPage && !readOnly"
                         @click="onSurveyComplete"
                 >
-                    <span class="fi-btn-label">Terminer l'évaluation</span>
+                    <span class="fi-btn-label">{{ $field->getCompleteButtonLabel() }}</span>
                 </button>
             @endif
 
