@@ -31,6 +31,7 @@ class SurveyJSCreatorField extends Field
     public ?bool $showJSONEditorTab = false;
 
     public ?array $components = [];
+
     public ?array $translations = [];
 
     protected function setUp(): void
