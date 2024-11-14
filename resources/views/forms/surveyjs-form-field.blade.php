@@ -351,7 +351,7 @@
                         x-show="pageCount > 1"
                         @click="previous"
                 >
-                    <span class="fi-btn-label">{{ $field->getCompleteButtonLabel() }}</span>
+                    <span class="fi-btn-label">{{ $field->getPreviousButtonLabel() }}</span>
                 </button>
             @endif
 
