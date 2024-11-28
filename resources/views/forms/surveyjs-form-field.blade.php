@@ -89,9 +89,7 @@
                     question.readOnly = true;
                 }
 
-                if(this.allFieldsRequired) {
-                    question.isRequired = true;
-                }
+                question.isRequired = this.allFieldsRequired;
 
                 if(this.disableActions) {
                     question.isRequired = false;
@@ -337,10 +335,13 @@
         },
 
         clearForm() {
-            $wire.dispatchFormEvent('surveyjs::clearForm');
-            this.surveyInstance.clear(true, true);
+            if (window.confirm('Êtes-vous sûr de vouloir effacer le formulaire ? Cette action est irréversible.')) {
+                $wire.dispatchFormEvent('surveyjs::clearForm');
+                this.surveyInstance.getAllQuestions().forEach(function(question) {
+                    question.clearValue();
+                });
+            }
         }
-
     }"
 >
     <div x-show="loading" class="flex justify-center items-center flex-col">
