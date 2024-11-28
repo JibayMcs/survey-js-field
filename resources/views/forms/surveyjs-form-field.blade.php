@@ -39,6 +39,12 @@
             window.surveyLocalization.locales['fr'].requiredError = 'Ce champ est obligatoire';
             window.surveyLocalization.locales['en'].requiredError = 'This field is required';
 
+            window.DefaultLight.cssVariables['background-color'] = 'transparent';
+            window.DefaultLight.cssVariables['--sjs-primary-backcolor'] = 'rgb(var(--primary-500))';
+
+            window.DefaultDark.cssVariables['background-color'] = 'transparent';
+            window.DefaultDark.cssVariables['--sjs-primary-backcolor'] = 'rgb(var(--primary-500))';
+
             window.addEventListener('theme-changed', (event) => {
                 this.surveyInstance.applyTheme(event.detail === 'dark' ? window.DefaultDark : window.DefaultLight);
             });
@@ -47,8 +53,6 @@
             window.DefaultLight.isPanelless = this.panelless;
 
             this.surveyInstance.applyTheme($store.theme === 'dark' ? window.DefaultDark : window.DefaultLight);
-
-            window.DefaultLight.cssVariables['background-color'] = 'transparent';
 
             this.surveyInstance.showNavigationButtons = false;
             this.surveyInstance.checkErrorsMode = this.checkErrorsMode;
@@ -330,6 +334,11 @@
 
         redirectBack() {
             window.location.href = '{{ url()->previous() }}';
+        },
+
+        clearForm() {
+            $wire.dispatchFormEvent('surveyjs::clearForm');
+            this.surveyInstance.clear(true, true);
         }
 
     }"
@@ -384,6 +393,14 @@
                     @click="redirectBack"
             >
                 <span class="fi-btn-label">Retour à la liste</span>
+            </button>
+
+            <button style="--c-400: var(--gray-400); --c-500: var(--gray-500); --c-600: var(--gray-600);"
+                    class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-success fi-color-success fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50"
+                    type="button"
+                    @click="clearForm"
+            >
+                <span class="fi-btn-label">Effacer le formulaire</span>
             </button>
         </div>
     </template>
