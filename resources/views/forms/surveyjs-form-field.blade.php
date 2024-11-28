@@ -382,7 +382,7 @@
     }"
 >
     <div x-show="loading" class="flex justify-center items-center flex-col">
-        <span class="font-semibold text-xl">Chargement de l'évaluation</span>
+        <span class="font-semibold text-xl">Chargement</span>
         <x-filament::loading-indicator class="h-8 w-8" />
     </div>
 
