@@ -25,11 +25,15 @@ class SurveyJSFormField extends Field
 
     public bool $showCompleteButton = true;
 
+    public bool $showRedirectBackButton = true;
+
     public mixed $readOnly = false;
 
     public bool $disableActions = false;
 
     public ?Closure $onCompleteSurveyClosure = null;
+
+    public ?Closure $onSaveSurveyResponsesClosure = null;
 
     public Notification $successNotification;
 
@@ -107,6 +111,10 @@ class SurveyJSFormField extends Field
         });
 
         $this->completeNotification();
+
+        $this->afterStateUpdated(static function (SurveyJSFormField $component, $state): void {
+            $component->callOnSaveSurveyResponses($state, $component->getRecord());
+        });
 
         $this->registerListeners(
             [
@@ -222,6 +230,18 @@ class SurveyJSFormField extends Field
     }
 
     /**
+     * Hide the redirect back button
+     *
+     * @return $this
+     */
+    public function hideRedirectBackButton(): static
+    {
+        $this->showRedirectBackButton = false;
+
+        return $this;
+    }
+
+    /**
      * Set the survey to be read only
      *
      * @return $this
@@ -258,6 +278,13 @@ class SurveyJSFormField extends Field
         return $this;
     }
 
+    public function onSaveSurveyResponses(Closure $closure): static
+    {
+        $this->onSaveSurveyResponsesClosure = $closure;
+
+        return $this;
+    }
+
     /**
      * Call the onCompleteSurvey closure when the survey is completed
      */
@@ -265,6 +292,18 @@ class SurveyJSFormField extends Field
     {
         if ($this->onCompleteSurveyClosure && ! $this->disableActions) {
             $this->evaluate($this->onCompleteSurveyClosure, ['state' => $state, 'record' => $record]);
+        }
+    }
+
+    /**
+     * Set the onSaveSurveyResponses closure when the survey responses are saved
+     *
+     * @return $this
+     */
+    public function callOnSaveSurveyResponses(mixed $state, ?Model $record): void
+    {
+        if ($this->onSaveSurveyResponsesClosure && ! $this->disableActions) {
+            $this->evaluate($this->onSaveSurveyResponsesClosure, ['state' => $state, 'record' => $record]);
         }
     }
 

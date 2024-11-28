@@ -156,13 +156,50 @@
                 $wire.dispatchFormEvent('surveyjs::saveDraftData', this.state);
             }.bind(this));
 
-            for (const key in this.mutatedFormData) {
-                if (this.mutatedFormData.hasOwnProperty(key)) {
-                    const value = this.mutatedFormData[key];
-                    this.surveyInstance.setValue(key, value);
+            try {
+                for (const key in this.mutatedFormData) {
+                    if (this.mutatedFormData.hasOwnProperty(key)) {
+                        const value = this.mutatedFormData[key];
+
+                        // Assurez-vous que la valeur est correctement manipulée avant de l'utiliser
+                        const rawValue = Alpine.raw(value); // Déproxyfie si nécessaire
+                        const finalValue = Array.isArray(rawValue) ? rawValue[0] : rawValue;
+
+                        this.surveyInstance.setValue(key, finalValue);
+                        this.surveyInstance.validate(false);
+                    }
+                }
+            } catch (e) { // Corrigé ici
+                try {
+                    this.mutatedFormData.forEach((page) => {
+                        if (page.questions && Array.isArray(page.questions)) {
+                            page.questions.forEach((question) => {
+                                const questionName = question.element.name; // Récupérer le nom de la question
+                                const rawValue = Alpine.raw(question.value); // Déproxyfier la valeur
+                                const finalValue = Array.isArray(rawValue) ? rawValue[0] : rawValue; // Extraire la valeur réelle
+
+                                console.log(`Setting value for question: ${questionName}`, finalValue);
+
+                                // Définir la valeur dans SurveyJS
+                                this.surveyInstance.setValue(questionName, finalValue);
+                            });
+                        }
+                    });
+
+                    // Valider après avoir défini toutes les valeurs
                     this.surveyInstance.validate(false);
+                } catch (e) {
+                    console.error('Error while loading survey data:', e);
+
+                    // Si une erreur survient, faire un fallback pour éviter que l'application ne plante
+                    this.surveyInstance.getAllQuestions().forEach((question) => {
+                        const questionName = question.name;
+
+                        console.log(`Fallback setting value for question: ${questionName}`);
+                    });
                 }
             }
+
 
             $wire.$on('surveyjs::form::previous', () => {
                 this.surveyInstance.prevPage()
@@ -365,13 +402,14 @@
                 </button>
             @endif
 
-                <button style="--c-400: var(--gray-400); --c-500: var(--gray-500); --c-600: var(--gray-600);"
-                        class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-success fi-color-success fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50"
-                        type="button"
-                        @click="clearForm"
-                >
-                    <span class="fi-btn-label">Effacer le formulaire</span>
-                </button>
+            <button style="--c-400: var(--gray-400); --c-500: var(--gray-500); --c-600: var(--gray-600);"
+                    x-show="!readOnly"
+                    class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-success fi-color-success fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50"
+                    type="button"
+                    @click="clearForm"
+            >
+                <span class="fi-btn-label">Effacer le formulaire</span>
+            </button>
 
             @if($field->showNextButton && $field->showButtons)
                 <button style="--c-400:var(--primary-400);--c-500:var(--primary-500);--c-600:var(--primary-600);"
@@ -395,14 +433,16 @@
                 </button>
             @endif
 
-            <button style="--c-400: var(--success-400); --c-500: var(--success-500); --c-600: var(--success-600);"
-                    class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-success fi-color-success fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50"
-                    type="button"
-                    x-show="isLastPage && readOnly"
-                    @click="redirectBack"
-            >
-                <span class="fi-btn-label">Retour à la liste</span>
-            </button>
+            @if($field->showRedirectBackButton)
+                <button style="--c-400: var(--success-400); --c-500: var(--success-500); --c-600: var(--success-600);"
+                        class="fi-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-custom fi-btn-color-success fi-color-success fi-size-md fi-btn-size-md gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-custom-600 text-white hover:bg-custom-500 focus-visible:ring-custom-500/50 dark:bg-custom-500 dark:hover:bg-custom-400 dark:focus-visible:ring-custom-400/50"
+                        type="button"
+                        x-show="isLastPage && readOnly"
+                        @click="redirectBack"
+                >
+                    <span class="fi-btn-label">Retour à la liste</span>
+                </button>
+            @endif
         </div>
     </template>
 

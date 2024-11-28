@@ -6,7 +6,8 @@ trait CanLoadAnswers
 {
     public function loadAnswers($record, $statePath, $mutatedFormData)
     {
-        return array_merge($mutatedFormData, $this->extractQuestionsWithValues($record->{$statePath}));
+//        return array_merge($mutatedFormData, $this->extractQuestionsWithValues($record->{$statePath}));
+        return $this->extractQuestionsWithValues($mutatedFormData);
     }
 
     private function extractQuestionsWithValues(?array $pages = null)
@@ -22,7 +23,6 @@ trait CanLoadAnswers
                 $this->extractElementsWithValues($page['questions'], $questions);
             }
         }
-
         return $questions;
     }
 
