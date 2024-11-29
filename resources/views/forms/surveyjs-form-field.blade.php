@@ -389,7 +389,7 @@
     <survey params="survey: model" wire:ignore></survey>
 
     <template x-if="!loading">
-        <div class="flex justify-between" wire:ignore>
+        <div class="flex justify-between mt-4" wire:ignore>
 
             @if($field->showPreviousButton && $field->showButtons)
                 <button style="--c-400:var(--primary-400);--c-500:var(--primary-500);--c-600:var(--primary-600);"
