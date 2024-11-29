@@ -103,10 +103,10 @@
                     if (typeof value === 'string') {
                         // parse the string to a JSON object
                         creator.JSON = JSON.parse(value)
-                    } else {
+                    }/* else {
                         // set the JSON object to the value
                         creator.JSON = value
-                    }
+                    }*/
                 });
 
                 if (this.state) {
