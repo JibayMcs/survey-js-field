@@ -113,6 +113,8 @@
 
             }.bind(this))
 
+            window.knockout.cleanNode(document.querySelector('survey'));
+
             window.knockout.applyBindings({
                 model: this.surveyInstance,
             });
