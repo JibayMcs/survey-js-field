@@ -23,6 +23,13 @@
         autoSave: {{ $field->autoSave ? 'true' : 'false' }},
 
         initForm() {
+
+            if (this.surveyInstance) {
+                // Si une instance existe déjà, la réinitialiser ou la détruire
+                this.surveyInstance.dispose(); // ou méthode équivalente pour nettoyer
+                this.surveyInstance = null;
+            }
+
             let surveyJson = Alpine.raw(this.state);
 
             if(this.state) {
