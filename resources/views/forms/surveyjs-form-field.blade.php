@@ -113,7 +113,9 @@
 
             }.bind(this))
 
-            if (document.querySelector('survey')) {
+            let surveyElement = document.querySelector('survey');
+
+            if (surveyElement) {
                 // Nettoyez les bindings existants
                 window.knockout.cleanNode(surveyElement);
 
