@@ -113,15 +113,15 @@
 
             }.bind(this))
 
-            window.knockout.bindingHandlers.surveyjsEditor = {
-                init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
-                    return { controlsDescendantBindings: true };
-                }
-            };
+            if (surveyElement) {
+                // Nettoyez les bindings existants
+                window.knockout.cleanNode(surveyElement);
 
-            window.knockout.applyBindings({
-                model: this.surveyInstance,
-            });
+                // Appliquez les nouveaux bindings
+                window.knockout.applyBindings({
+                    model: this.surveyInstance,
+                }, surveyElement);
+            }
 
             this.surveyInstance.onAfterRenderSurvey.add(function(sender, options) {
                 console.info('Survey successfully rendered');
