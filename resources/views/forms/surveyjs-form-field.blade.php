@@ -113,7 +113,11 @@
 
             }.bind(this))
 
-            window.knockout.cleanNode(document.querySelector('survey'));
+            window.knockout.bindingHandlers.surveyjsEditor = {
+                init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+                    return { controlsDescendantBindings: true };
+                }
+            };
 
             window.knockout.applyBindings({
                 model: this.surveyInstance,
