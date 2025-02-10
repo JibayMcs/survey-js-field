@@ -173,132 +173,142 @@
         },
 
         updateNonNativeState(sender, options) {
-            // Récupère la question qui a changé
-            const question = options.question;
-            const pageName = sender.currentPage.jsonObj.name;
+  // Récupère la question qui a changé et le nom de la page courante
+  const question = options.question;
+  const pageName = sender.currentPage.jsonObj.name;
 
-            let checkedValues = question.getType() === 'checkbox' ? question.getPlainData().data.map((item) => item.displayValue) : sender.data[question.name]; // Valeurs cochées
+  let checkedValues;
 
-            if (!Array.isArray(checkedValues)) {
-                checkedValues = checkedValues ? [checkedValues] : [];
-            }
+  // Récupération de la valeur en fonction du type de question
+  if (question.getType() === 'checkbox') {
+    // Pour les checkbox, on récupère les valeurs cochées dans un tableau
+    checkedValues = question.getPlainData().data.map(item => item.displayValue);
+  } else if (question.getType() === 'matrixdropdown') {
+    // Pour une question matrixdropdown, la valeur est attendue comme un objet.
+    // Dans vos données, elle est stockée comme un tableau contenant un unique objet, on le déballera.
+    checkedValues = sender.data[question.name];
+    if (Array.isArray(checkedValues) &&
+        checkedValues.length === 1 &&
+        typeof checkedValues[0] === 'object') {
+      checkedValues = checkedValues[0];
+    }
+  } else {
+    // Pour les autres types de questions, on s'assure d'avoir un tableau de valeurs
+    checkedValues = sender.data[question.name];
+    if (!Array.isArray(checkedValues)) {
+      checkedValues = checkedValues ? [checkedValues] : [];
+    }
+  }
 
-            // Fonction auxiliaire pour créer une réponse avec startWithNewLine
-            const createResponse = (question) => {
-                let response = {
-                    element: {
-                        type: question.getType(),
-                        name: question.name,
-                        title: question.title,
-                        inputType: question.inputType || undefined // Ajout de l'inputType pour les questions de type 'text'
-                    },
-                    value: checkedValues,
-                };
+  // Fonction auxiliaire pour créer l'objet réponse
+  const createResponse = (question) => {
+    let response = {
+      element: {
+        type: question.getType(),
+        name: question.name,
+        title: question.title,
+        inputType: question.inputType || undefined
+      },
+      value: checkedValues
+    };
 
-                if (question.description) {
-                    response.description = question.description;
-                }
+    if (question.description) {
+      response.description = question.description;
+    }
 
-                // Ajout de startWithNewLine si vrai
-                if (question.startWithNewLine) {
-                    response.element.startWithNewLine = true;
-                }
+    if (question.startWithNewLine) {
+      response.element.startWithNewLine = true;
+    }
 
-                if (question.getType() === 'checkbox') {
-                    // Pour les questions de type checkbox, déterminer les valeurs non sélectionnées
-                    const uncheckedValues = question.choices
-                        .filter(choice => !checkedValues.includes(choice.text))
-                        .map(choice => choice.text);
+    if (question.getType() === 'checkbox') {
+      // Pour les checkbox, on détermine les valeurs non cochées
+      const uncheckedValues = question.choices
+        .filter(choice => !checkedValues.includes(choice.text))
+        .map(choice => choice.text);
+      response.unchecked = uncheckedValues;
+    }
 
-                    // Ajouter les valeurs non cochées à l'objet de réponse
-                    response.unchecked = uncheckedValues;
-                }
+    if (question.getType() === 'boolean') {
+      response.trueLabel = question.trueLabel || 'Yes';
+      response.falseLabel = question.falseLabel || 'No';
+    }
 
-                if (question.getType() === 'boolean') {
-                    response.trueLabel = question.trueLabel || 'Yes'; // Utilisez des valeurs par défaut ou celles fournies par SurveyJS
-                    response.falseLabel = question.falseLabel || 'No';
-                }
+    // Pour matrixdropdown, on s'assure que la valeur est déjà un objet (et non un tableau)
+    if (question.getType() === 'matrixdropdown') {
+      response.value = checkedValues;
+    }
 
-                return response;
-            };
+    return response;
+  };
 
-            let response = createResponse(question);
+  // Création de l'objet réponse pour la question
+  let response = createResponse(question);
 
-            // Initialisation de la structure de données
-            let data = {
-                page: pageName,
-                questions: []
-            };
+  // Initialisation de la structure de données pour la page
+  let data = {
+    page: pageName,
+    questions: []
+  };
 
-            // Trouve l'index de la page existante dans this.state (s'il existe)
-            const pageIndex = this.state.findIndex(item => item.page === pageName);
+  // Recherche de la page existante dans l'état
+  const pageIndex = this.state.findIndex(item => item.page === pageName);
 
-            if (question.parent && question.parent.getType() === 'panel') {
-                // Gestion des questions de type panel
-                const panel = question.parent;
+  if (question.parent && question.parent.getType() === 'panel') {
+    // Si la question est dans un panel
+    const panel = question.parent;
+    let panelQuestion = null;
 
-                // Cherche si le panel existe déjà dans les questions de la page
-                let panelQuestion = null;
-                if (pageIndex !== -1) {
-                    panelQuestion = this.state[pageIndex].questions.find(q => q.element.name === panel.name);
-                }
+    if (pageIndex !== -1) {
+      panelQuestion = this.state[pageIndex].questions.find(q => q.element.name === panel.name);
+    }
 
-                if (!panelQuestion) {
-                    // Si le panel n'existe pas, on le crée
-                    panelQuestion = {
-                        element: {
-                            type: panel.getType(),
-                            name: panel.name,
-                            title: panel.title
-                        },
-                        questions: []
-                    };
-
-                    // Ajout de startWithNewLine pour le panel si vrai
-                    if (panel.startWithNewLine) {
-                        panelQuestion.element.startWithNewLine = true;
-                    }
-
-                    if (pageIndex !== -1) {
-                        // Si la page existe déjà, on ajoute le panel à cette page
-                        this.state[pageIndex].questions.push(panelQuestion);
-                    } else {
-                        // Si la page n'existe pas, on la crée et on y ajoute le panel
-                        data.questions.push(panelQuestion);
-                        this.state.push(data);
-                    }
-                }
-
-                // Vérifie si la question existe déjà dans le panel
-                const existingQuestionIndex = panelQuestion.questions.findIndex(q => q.element.name === question.name);
-                if (existingQuestionIndex !== -1) {
-                    // Met à jour la question existante dans le panel
-                    panelQuestion.questions[existingQuestionIndex] = response;
-                } else {
-                    // Ajoute la nouvelle question au panel
-                    panelQuestion.questions.push(response);
-                }
-
-            } else {
-                // Si la question n'appartient pas à un panel
-                if (pageIndex !== -1) {
-                    // Si la page existe déjà, on trouve l'index de la question
-                    const questionIndex = this.state[pageIndex].questions.findIndex(item => item.element.name === question.name);
-
-                    if (questionIndex !== -1) {
-                        // Si la question existe déjà, on met à jour la réponse
-                        this.state[pageIndex].questions[questionIndex] = response;
-                    } else {
-                        // Sinon, on ajoute la nouvelle question à la page existante
-                        this.state[pageIndex].questions.push(response);
-                    }
-                } else {
-                    // Si la page n'existe pas, on l'ajoute à this.state
-                    data.questions.push(response);
-                    this.state.push(data);
-                }
-            }
+    if (!panelQuestion) {
+      // Création du panel s'il n'existe pas
+      panelQuestion = {
+        element: {
+          type: panel.getType(),
+          name: panel.name,
+          title: panel.title
         },
+        questions: []
+      };
+
+      if (panel.startWithNewLine) {
+        panelQuestion.element.startWithNewLine = true;
+      }
+
+      if (pageIndex !== -1) {
+        this.state[pageIndex].questions.push(panelQuestion);
+      } else {
+        data.questions.push(panelQuestion);
+        this.state.push(data);
+      }
+    }
+
+    // Mise à jour ou ajout de la question dans le panel
+    const existingQuestionIndex = panelQuestion.questions.findIndex(q => q.element.name === question.name);
+    if (existingQuestionIndex !== -1) {
+      panelQuestion.questions[existingQuestionIndex] = response;
+    } else {
+      panelQuestion.questions.push(response);
+    }
+  } else {
+    // Si la question n'appartient pas à un panel
+    if (pageIndex !== -1) {
+      const questionIndex = this.state[pageIndex].questions.findIndex(item => item.element.name === question.name);
+      if (questionIndex !== -1) {
+        this.state[pageIndex].questions[questionIndex] = response;
+      } else {
+        this.state[pageIndex].questions.push(response);
+      }
+    } else {
+      data.questions.push(response);
+      this.state.push(data);
+    }
+  }
+},
+
+
 
         next() {
             Alpine.raw(this.surveyInstance).nextPage()
