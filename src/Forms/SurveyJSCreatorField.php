@@ -90,10 +90,10 @@ class SurveyJSCreatorField extends Field
 
     public function pageEditMode(PageEditMode $editMode): static
     {
-        //get allowed values from enum
+        // get allowed values from enum
         $allowedValues = PageEditMode::getValues();
 
-        //check if the value is allowed
+        // check if the value is allowed
         if (! in_array($editMode, $allowedValues)) {
             throw new \Exception('Invalid value for PageEditMode, allowed values are: '.implode(', ', $allowedValues).'.');
         }

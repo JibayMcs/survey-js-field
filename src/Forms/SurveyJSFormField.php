@@ -299,10 +299,10 @@ class SurveyJSFormField extends Field
      */
     public function checkErrorsMode(CheckErrorsMode $mode): static
     {
-        //get allowed values from enum
+        // get allowed values from enum
         $allowedValues = CheckErrorsMode::getValues();
 
-        //check if the value is allowed
+        // check if the value is allowed
         if (! in_array($mode, $allowedValues)) {
             throw new \Exception('Invalid value for CheckErrorsMode, allowed values are: '.implode(', ', $allowedValues).'.');
         }
