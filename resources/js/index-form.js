@@ -20,9 +20,3 @@ window.registerFormComponents = function (components) {
         ComponentCollection.Instance.add(component)
     });
 }
-
-if(window.filamentData.surveyjs.components) {
-    window.filamentData.surveyjs.components.forEach(component => {
-        ComponentCollection.Instance.add(component);
-    });
-}

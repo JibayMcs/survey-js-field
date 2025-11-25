@@ -14,13 +14,7 @@ window.registerCreatorComponents = function(components) {
     })
 }
 
-if (window.filamentData.surveyjs.components) {
-    window.filamentData.surveyjs.components.forEach(component => {
-        ComponentCollection.Instance.add(component)
-    })
-}
-
-window.hiddenSurveyProperties = window.filamentData.surveyjs.hiddenSurveyProperties || []
+window.hiddenSurveyProperties = []
 
 window.hiddenSurveyProperties.forEach(property => {
     Serializer.removeProperty('survey', property)
@@ -30,4 +24,4 @@ window.hiddenSurveyProperties.forEach(property => {
  * Remove properties from questions/panels, etc
  * Used in the alpinejs component 'surveyjs-creator-field' on listening **onShowingProperty** event
  */
-window.hiddenProperties = window.filamentData.surveyjs.hiddenProperties || []
+window.hiddenProperties = []
